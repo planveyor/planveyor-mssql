@@ -1,0 +1,1037 @@
+{
+  "run_id": "risk:20261011T170108Z:sol_ultra_v4",
+  "lane_id": "reviewer_code_risk",
+  "runner_id": "codex_collab",
+  "session_key": "/root/reviewer_code_risk_sol_xhigh_v2",
+  "sid": "unknown",
+  "profile": "unknown",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "ultra",
+  "prompt_file": "docs/tools/prompts/reviewer_status_driven.md",
+  "target_ref": "BUNDLE=current",
+  "coverage_domains": [
+    "correctness",
+    "tests quality",
+    "security/privacy",
+    "subprocess/timeouts",
+    "races/locks/atomicity",
+    "data/migrations",
+    "performance",
+    "observability",
+    "integrations",
+    "supply chain",
+    "failure semantics"
+  ],
+  "lane_status": "complete",
+  "no_findings_reason": "NO FINDINGS: B3 current fix independently rejects original leaf/ancestor aliases and case-only index rename before config/deletion/build/SQL; tracked bytes preserved. B1/B2 fixed baseline unchanged; valid untracked literal XML succeeds. Own 53 tests, 6 independent fixtures and fresh guarded SQL proof passed on exact current target.",
+  "limits": [
+    "sid/runtime profile не exposed; actual collab session_key и configured model/ultra указаны буквально, task-name suffix не authority",
+    "SQL proof последовательный; concurrency, other OS/filesystems и unsupported local Git metadata tampering не проверялись",
+    "setup/Extract не повторялись; 58 unaffected targets подтверждены byte-equal canonical file records, прошлые source reads применимы только к unchanged bytes",
+    "Risk не меняет canonical B3 state/live review/header/Status; same-file acceptance и synthesis принадлежат Contracts"
+  ],
+  "written_at": "2026-10-11T17:01:08Z",
+  "current": true,
+  "source_refs": [
+    "scripts/sql.py:83",
+    "scripts/sql.py:288",
+    "scripts/sql.py:298",
+    "scripts/sql.py:309",
+    "scripts/test_sql.py:381",
+    "scripts/test_sql.py:400",
+    "scripts/test_sql.py:413",
+    "scripts/test_sql.py:436",
+    "scripts/test_sql.py:455",
+    "docs/code_reviews/261011_1523_stack_adaptation.md#B1",
+    "docs/code_reviews/261011_1523_stack_adaptation.md#B2",
+    "docs/code_reviews/261011_1523_stack_adaptation.md#B3"
+  ],
+  "delta": [
+    "scripts/sql.py",
+    "scripts/test_sql.py"
+  ],
+  "outcome": "No current Risk findings; B3 fix verified, B1/B2 historical-fixed baseline preserved; canonical same-file verdict/status pending Contracts.",
+  "findings": [],
+  "verification": {
+    "mode": "fresh-exec",
+    "rerun_mode": "incremental",
+    "baseline_artifact": "docs/code_reviews/261011_1523_stack_adaptation.md",
+    "baseline_bundle_sha256": "fe1be1e2ca75dbb05485dbd29d939169d46ab8f53c5dfcd3179e2b82b8cb3200",
+    "project_launch_environment": "Unchanged Python 3.12.14/Darwin, non-login shell; no PATH/HOME/config changes",
+    "commands": [
+      {
+        "command": "make db-build",
+        "make_rc": 0,
+        "wrapper_rc": 0
+      },
+      {
+        "command": "make lint",
+        "make_rc": 0,
+        "wrapper_rc": 0
+      },
+      {
+        "command": "make test",
+        "make_rc": 0,
+        "wrapper_rc": 0,
+        "tests": 53,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "command": "make check-secrets",
+        "make_rc": 0,
+        "wrapper_rc": 0,
+        "executions_before_materialization": 2
+      },
+      {
+        "command": "make db-state",
+        "make_rc": 0,
+        "wrapper_rc": 0,
+        "schemas": 2,
+        "objects": 162,
+        "test_classes": 1,
+        "last_results": 1,
+        "products_u": 1,
+        "result_success": 1,
+        "result_failure": 0,
+        "result_error": 0,
+        "authority": "contextual-only"
+      },
+      {
+        "command": "make db-proof JUNIT=docs/code_reviews/assets/261011_1523_stack_adaptation/canary.review.junit.xml",
+        "make_rc": 0,
+        "wrapper_rc": 0
+      }
+    ],
+    "canonical_snapshot": {
+      "producer": "planveyor_review_target_snapshot docs/plans/261011_1523_stack_adaptation.md --current-bundle",
+      "schema_version": "review_target_snapshot.v2",
+      "before_rc": 0,
+      "after_rc": 0,
+      "paths": 60,
+      "stdout_byte_equal": true,
+      "unchanged_paths_vs_previous_generation": 58
+    },
+    "ordinary_plan_lint_prewrite_rc": 0,
+    "git_diff_check_rc": 0,
+    "index_empty": true,
+    "target_delta": [
+      "scripts/sql.py",
+      "scripts/test_sql.py"
+    ]
+  },
+  "proof": {
+    "head": "167b56395c1bfd5fae8921d2cde12dd1a8295c42",
+    "bundle_sha256": "171833e40098d72075515cbbc29f20e0021325aea5b7479afe0111a872bf8302",
+    "junit_path": "docs/code_reviews/assets/261011_1523_stack_adaptation/canary.review.junit.xml",
+    "junit_sha256": "4729e734245305d7406005a240a451e5960d9951db2932d274d148c7f70c2863",
+    "junit_bytes": 287,
+    "junit_mtime_ns": "1791737935693972275",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "testcase": {
+      "classname": "StackAdaptationTests",
+      "name": "test Products table exists"
+    },
+    "freshness": "Own current build/fresh one-query guard/Publish/RunAll/unchanged formatter/atomic cleaned JUnit executed; old or Coder XML not reused, deterministic digest alone not freshness proof."
+  },
+  "predecessor_reconciliation": [
+    {
+      "lane_finding_id": "risk:R1",
+      "canonical_ref": "docs/code_reviews/261011_1523_stack_adaptation.md#B1",
+      "canonical_baseline_state": "historical-fixed",
+      "risk_verification": "fixed-on-current-target",
+      "outcome": "Original tracked magic filename: rc 2, original bytes preserved, config unread, build/SQL=0; accepted valid untracked magic filename retains literal semantics."
+    },
+    {
+      "lane_finding_id": "risk:R2",
+      "canonical_ref": "docs/code_reviews/261011_1523_stack_adaptation.md#B2",
+      "canonical_baseline_state": "historical-fixed",
+      "risk_verification": "fixed-on-current-target",
+      "outcome": "Original ambient alternate index: rc 2, original bytes preserved, config unread, child-processes=0; no silent environment override."
+    },
+    {
+      "lane_finding_id": "risk:R3",
+      "canonical_ref": "docs/code_reviews/261011_1523_stack_adaptation.md#B3",
+      "canonical_baseline_state": "open",
+      "risk_verification": "fixed-on-current-target",
+      "canonical_state_write": "Contracts-owned; unchanged by this lane",
+      "outcome": "Original tracked TrackedCanary.xml alias trackedcanary.xml now rejects 2 before config/deletion/tools/build/SQL, old bytes preserved; same for ancestor/new-leaf aliases and canonical filesystem case-only rename with different Git index spelling.",
+      "mechanism": "safe_path lstat/listdir verifies actual existing component spelling; untracked literal exact lookup plus complete NUL-terminated index inventory compares existing physical st_dev/st_ino. Error/malformed inventory refuses before configuration. Valid canonical untracked XML stays allowed."
+    }
+  ],
+  "reproductions": {
+    "harness": "Isolated temporary copied Makefile/current scripts/sql.py, current scripts/test_sql.py copied as fixture_harness.py, custom test_sql.py reuses synthetic Fixture/FakeExecutor. Actual Git in ordinary temporary repo, no live SQL/credentials. Temporary files cleaned; no corpus/helper persisted in project.",
+    "command": "make test",
+    "make_rc": 0,
+    "wrapper_rc": 0,
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "outputs": [
+      "independent path=:(literal)canary.xml refusal=2 old-preserved=true build-sql=0 config-unread=true",
+      "independent B2 refusal=2 old-preserved=true child-processes=0",
+      "independent path=actualreports/Canary.xml refusal=2 old-preserved=true build-sql=0 config-unread=true",
+      "independent path=actualreports/new.xml refusal=2 old-preserved=true build-sql=0 config-unread=true",
+      "independent path=indexcanary.xml refusal=2 old-preserved=true build-sql=0 config-unread=true",
+      "independent path=trackedcanary.xml refusal=2 old-preserved=true build-sql=0 config-unread=true",
+      "independent valid-untracked-literal success=true"
+    ],
+    "scenarios": [
+      "Track literal :(literal)canary.xml in real index, require refusal 2 and old bytes preservation.",
+      "Track canary.xml, supply ambient nonexistent GIT_INDEX_FILE only in synthetic Stack, require refusal 2 before any child/config read.",
+      "Track TrackedCanary.xml, verify samefile(trackedcanary.xml) on actual filesystem, require refusal 2 and original bytes preserved.",
+      "Track ActualReports/Canary.xml; try actualreports/Canary.xml and actualreports/new.xml, require refusal before config/tools and no new leaf.",
+      "Track IndexCanary.xml; filesystem-only rename to indexcanary.xml leaves canonical lower spelling vs old Git index spelling; require refusal 2 with bytes preserved.",
+      "Invoke proof on genuine untracked :(literal)untracked.xml, require success only at literal destination."
+    ],
+    "threat_model": "Supported ordinary .git directory on current case-insensitive macOS filesystem. No symlink/foreign metadata/concurrent metadata mutation."
+  },
+  "domain_review": {
+    "correctness": "Current path spelling+physical index identity and target/JUnit strict validators inspected; independent regressions and live canary green.",
+    "tests_quality": "53 checked-in tests cover old/new refusal matrices, no false success from unknown inventory; 6 independent behavioral fixtures green.",
+    "security_privacy": "No role credential values read; check-secrets twice green, subprocess/XML redaction/ambient override fixtures green; only wrapper chooses live target.",
+    "subprocess_timeouts": "Bounded timeouts/categories retained; no restore/network fallback/SQL auto-retry; fake failure and timeout tests green.",
+    "races_locks_atomicity": "Existing atomic JUnit and Extract/source custody retained; roles SQL sequential. Concurrent filesystem/metadata attackers outside plan not inferred.",
+    "data_migrations": "Same SQL150 projects/imported canary, no business mutations/seed/preparation; guarded designated-dev Publish, db-state contextual.",
+    "performance": "Current sibling inventory bounded; full index identity scan adds conservative existing-file metadata work, no observed operational regression in fresh gates.",
+    "observability": "Portable phases/categories and cleaned current JUnit; raw env/argv/streams/private connection detail absent.",
+    "integrations_supply_chain": "Exact pins/manifests/Makefile/cache+no-restore and 58 untouched targets verified by producer/tests; no dependency/setup/Extract changes.",
+    "failure_semantics": "Malformed index/identity errors fail closed with rc 2 before destructive operations; canonical existing/new untracked positives and new refusal cases pass."
+  },
+  "custody": {
+    "historical_supports": [
+      {
+        "run_id": "risk:20261011T145607Z:sol_ultra_v2",
+        "path": "docs/code_reviews/assets/261011_1523_stack_adaptation/reviewer_code_risk_20261011T145607Z_sol_ultra_v2.json",
+        "sha256": "8f7680e78721028b49dc77b82f34767d3167d2cdcbb65566efe847e03ff1bd86",
+        "bytes": 37690
+      },
+      {
+        "run_id": "risk:20261011T160014Z:sol_ultra_v3",
+        "path": "docs/code_reviews/assets/261011_1523_stack_adaptation/reviewer_code_risk_20261011T160014Z_sol_ultra_v3.json",
+        "sha256": "6502913dd611b007b79191f0b287a53e84e86a9b09eb873d3815f42dd3053255",
+        "bytes": 40826
+      }
+    ],
+    "live_review_sha256_before": "47d619b8958c8e77a4285acf1f036ba58d1ea7d10f6422d0ae620b0d230c5040",
+    "plan_header": "Ready for Review",
+    "boundaries": "Only current risk generation/support/compact supersession; no implementation/status/review/server/config/credentials values/dependencies/PATH/HOME/index/commit/publication changes."
+  },
+  "context_refs": [
+    "docs/plans/261011_1523_stack_adaptation.md::Decisions (final)",
+    "docs/plans/261011_1523_stack_adaptation.md::Coder Q&A",
+    "docs/plans/261011_1523_stack_adaptation.md::Review artifacts",
+    "docs/code_drafts/261011_1523_stack_adaptation__code_draft.md",
+    "docs/stack_brief.md",
+    "README.md",
+    "docs/adr/010-trusted-local-git-metadata-boundary.md",
+    "docs/playbooks/review_staged_or_commit.md",
+    "docs/tools/prompts/reviewer_status_driven.md",
+    "sql/tests/StackAdaptationTests/test_Products_table_exists.sql"
+  ],
+  "target_snapshot": {
+  "bundle_sha256": "171833e40098d72075515cbbc29f20e0021325aea5b7479afe0111a872bf8302",
+  "code_draft": "docs/code_drafts/261011_1523_stack_adaptation__code_draft.md",
+  "files": [
+    {
+      "git_mode": "100644",
+      "path": ".config/dotnet-tools.json",
+      "sha256": "954a17ba299b14b04d80c98f1b275fa088ac170749edffa088fc2c04f505fcaf",
+      "size_bytes": 127
+    },
+    {
+      "git_mode": "100644",
+      "path": ".sqlfluff",
+      "sha256": "6d716cbd637f03ae99a918a71b74521702412260892ebde0682f419f3ec962e4",
+      "size_bytes": 64
+    },
+    {
+      "git_mode": "100644",
+      "path": "Directory.Build.props",
+      "sha256": "265679f3dd4bb88d0051cc63c202ebffca5dce081c3247bba4926aadd7a1a4aa",
+      "size_bytes": 486
+    },
+    {
+      "git_mode": "100644",
+      "path": "Makefile",
+      "sha256": "2579b91a845819552117a011cfde7e0714aeb6254e00f725c7e6edd212f37f72",
+      "size_bytes": 304
+    },
+    {
+      "git_mode": "100644",
+      "path": "NuGet.Config",
+      "sha256": "0bb71acddfc779b80a2be181242ed0888b3f7ba7a3dde86ae4c17022a68f5be8",
+      "size_bytes": 279
+    },
+    {
+      "git_mode": "100644",
+      "path": "README.md",
+      "sha256": "1a9fb416fe74cb7d094d08a7fed8db23f4ba7ccc2675c2129f133f9766a0a06c",
+      "size_bytes": 9815
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/playbooks/post_merge_audit.md",
+      "sha256": "1cc348f1e05ad9f0744b1e73c6ff9f3f5fca0b011ee2fe32a4e33a5eb0c2e654",
+      "size_bytes": 43680
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/playbooks/review_merge_range.md",
+      "sha256": "436810e82eafe902519b2077b89ae47b31ca10b4cbd4be89ec668547891fed17",
+      "size_bytes": 31613
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/playbooks/review_staged_or_commit.md",
+      "sha256": "7f74a28aff80b9106f8bfe1e110ca40d70c60d8d3151972e0ec413f0caf0bf78",
+      "size_bytes": 13251
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/stack_brief.md",
+      "sha256": "af2aec564f0fa3b9fe0710d2ccea17610dd2beff9a1b918583b8501cff5ee6e0",
+      "size_bytes": 16369
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/architect_status_driven.md",
+      "sha256": "cae90f5555193d5b645d5bd6ccb3d04bdbdb4d9e558cf8618f2710283c8509b4",
+      "size_bytes": 85430
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/coder_migrations_gate.md",
+      "sha256": "568025588ada0b1bb94a014e3d48fc35be953ee0ce4a04da35bfd7a18d4c1c1f",
+      "size_bytes": 9299
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/coder_status_driven.md",
+      "sha256": "adec21ddd3c064eabc0db71a9e5e4e20c00f36d4ca1d85b078ae9e5426900ce0",
+      "size_bytes": 55244
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/planner_status_driven.md",
+      "sha256": "fdf523bb844be7d3cd17753908a987782ad4a44cd59006cafb95f6f500fdc508",
+      "size_bytes": 66384
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/reviewer_status_driven.md",
+      "sha256": "0f329a8b027533fbca9bae8b3073414277c7f1953dca7d80b66886dda9ad8388",
+      "size_bytes": 109061
+    },
+    {
+      "git_mode": "100644",
+      "path": "global.json",
+      "sha256": "ca5cda7dce0682dfac96712ef60b639d85feacd7349814a74decd3bf4200e178",
+      "size_bytes": 69
+    },
+    {
+      "git_mode": "100644",
+      "path": "requirements-dev.txt",
+      "sha256": "b399337ac70b9be1c07ac41b4d763e3026a1805fe2a3917e717b12fbe78fdcc9",
+      "size_bytes": 16
+    },
+    {
+      "git_mode": "100644",
+      "path": "scripts/sql.py",
+      "sha256": "40d5b0ae2226598c9cb667103f5f8f639ef684eddd5ae11a896d3424f18648dd",
+      "size_bytes": 32361
+    },
+    {
+      "git_mode": "100644",
+      "path": "scripts/test_sql.py",
+      "sha256": "19ad63feb3840386a9e1ffe2554aac382fbad438ba6c3daa9faee0332abdbea3",
+      "size_bytes": 42907
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Authored/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/StoredProcedures/CustOrderHist.sql",
+      "sha256": "49e23807016e4324f62f11c08f5258810826a0bcb7286561d0c4151e2d166142",
+      "size_bytes": 303
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/StoredProcedures/CustOrdersDetail.sql",
+      "sha256": "51735833c308eec51f75ab0afe71c8aceb50bc26f84be6f8b09da2c9dbe9ed02",
+      "size_bytes": 352
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/StoredProcedures/CustOrdersOrders.sql",
+      "sha256": "a1e0e249410cebc427c662ad2e8f9074d8e9264a19c87bc422fd91bd8926b330",
+      "size_bytes": 181
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/StoredProcedures/Employee Sales by Country.sql",
+      "sha256": "b1eef3d794d7b7a883efb9126aa87e836ba15e752d9094357dfb3628cd51312c",
+      "size_bytes": 471
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/StoredProcedures/Sales by Year.sql",
+      "sha256": "ecd113276110a1d590f059fb0f5e6ddc8d11badb072954264424c7e180815af6",
+      "size_bytes": 349
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/StoredProcedures/SalesByCategory.sql",
+      "sha256": "31f1f309bbf952bbd9e3c108bd52e99e8bf604c5dbe6ba8acda5a54272447b54",
+      "size_bytes": 635
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/StoredProcedures/Ten Most Expensive Products.sql",
+      "sha256": "5a720c9660978a71764d17c827192c8d1b5836ffee186b2d1fb2d1582776d62a",
+      "size_bytes": 195
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Tables/Categories.sql",
+      "sha256": "877e76f8b1a56c292c964ed0a30d8cba7cffa6af5083e36aa7d4bde58743e460",
+      "size_bytes": 389
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Tables/CustomerCustomerDemo.sql",
+      "sha256": "7f8d3425b4e2b53fd4d830bece384453817c74c28a628d5d0d2950134888876d",
+      "size_bytes": 499
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Tables/CustomerDemographics.sql",
+      "sha256": "9835da7519133dee4718bfe5591c5882bdb92fce305f8e739801d8bef10b1636",
+      "size_bytes": 222
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Tables/Customers.sql",
+      "sha256": "de521a92200192fab73b4c6d19431c8bb6d14b20768955ca1388f99aff8b0531",
+      "size_bytes": 888
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Tables/EmployeeTerritories.sql",
+      "sha256": "80497f0e2b461f1cbfa4192c1116c520a05ad9eb8a09ddaaa6f4c900b227c828",
+      "size_bytes": 489
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Tables/Employees.sql",
+      "sha256": "1d3a8929df085d217176c3add824d9bef935d95676f66add2a4060ae987106f0",
+      "size_bytes": 1261
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Tables/Order Details.sql",
+      "sha256": "749d5c9d3f48e8a7f3bc6ab324f470557b93a2b74015907ef91c33139ae40ebb",
+      "size_bytes": 1249
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Tables/Orders.sql",
+      "sha256": "251bbeccbe5daeda6cce85e46dc00569bd49994095593f39ff840135cb274e80",
+      "size_bytes": 1771
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Tables/Products.sql",
+      "sha256": "cca3dc75792e1fe1ad97c784c5d9dab62058094d5d7b6427bc8ec719f1ed589f",
+      "size_bytes": 1747
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Tables/Region.sql",
+      "sha256": "7b1224abd09101cc3ad2a664290f92918044bc886d6250c01a2acd459ad5e7fc",
+      "size_bytes": 198
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Tables/Shippers.sql",
+      "sha256": "036aef470e9032788df39837950e52990bd78b405831dc1ced5aecef7760f380",
+      "size_bytes": 248
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Tables/Suppliers.sql",
+      "sha256": "d38d4cd54aa6244a9c2bc34250e3b76f83622498c889487930e3014b67a57d20",
+      "size_bytes": 785
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Tables/Territories.sql",
+      "sha256": "3a5991234b431c1de819660c303f4fc0943dcbf0096cf5424ec3dd0b45f814db",
+      "size_bytes": 378
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Views/Alphabetical list of products.sql",
+      "sha256": "bd2731e91b34b950c8b20554d7fcc76aa54f6d9b63c81a71b001412560295110",
+      "size_bytes": 215
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Views/Category Sales for 1997.sql",
+      "sha256": "ede5e49006c209f75fa0184ec74115c295aac7a168f3aeae096cedbf4613ece9",
+      "size_bytes": 230
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Views/Current Product List.sql",
+      "sha256": "7ccece2955d0f76851fdea17e2148f741b068fec467d638524ddaa69bf1b5f6c",
+      "size_bytes": 206
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Views/Customer and Suppliers by City.sql",
+      "sha256": "77c8f599fdab02985110cb5b6eedf44ef349db19cae2c0d85d2e43c4a97c06c6",
+      "size_bytes": 239
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Views/Invoices.sql",
+      "sha256": "6abc933fbafccc45da51bc201f8a25e611d05a8c578a6571e2d377dea1cb2698",
+      "size_bytes": 1095
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Views/Order Details Extended.sql",
+      "sha256": "6c5f64879ec73624c3264763d11f501c766111884e8835575d62775a3d0f5b65",
+      "size_bytes": 428
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Views/Order Subtotals.sql",
+      "sha256": "530dc0c8f3732dfbc26ae92cbea8abd07e5ac48b3078cf765457f28c3ecca260",
+      "size_bytes": 215
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Views/Orders Qry.sql",
+      "sha256": "1f4ed2db1394dde4e2f98bd06c1ee935d6ad0f7a255e67ccdb95f0db0b7d93b7",
+      "size_bytes": 501
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Views/Product Sales for 1997.sql",
+      "sha256": "0a3801d991cb6773bb388242f28bbc8694eebe76ff0497f60d780a7e49928d47",
+      "size_bytes": 548
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Views/Products Above Average Price.sql",
+      "sha256": "269e1eca5101c02618788bcca70b551e4ceab88ca17b74867a46b73f7d823d0f",
+      "size_bytes": 212
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Views/Products by Category.sql",
+      "sha256": "252ed41e049fd8ee7f38fcb2b3cb939da0a95895f6af2eb5ca54edc856c6bb46",
+      "size_bytes": 342
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Views/Quarterly Orders.sql",
+      "sha256": "5777a988d5edfd29906c8b561eab0d0325b223b6de222b55ea8640e7db7faffc",
+      "size_bytes": 269
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Views/Sales Totals by Amount.sql",
+      "sha256": "efcd60945e837ce1add10a1e69f021ba1d7462d0ad74bd4ec53446c75b3ce9f4",
+      "size_bytes": 413
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Views/Sales by Category.sql",
+      "sha256": "e6690820b846218b1be6d8a40ad9314f0ccf233c7d035f8fca9c8961405dee2f",
+      "size_bytes": 613
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Views/Summary of Sales by Quarter.sql",
+      "sha256": "aa02ab38f6397a279b9ede18d112423e1110fc060593041f36246057f8e8b07b",
+      "size_bytes": 275
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Imported/dbo/Views/Summary of Sales by Year.sql",
+      "sha256": "b0b1f112a36bfd43472c460ec06e3440eea5b07ffdba6e5a17b4fb10b2a19771",
+      "size_bytes": 272
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Northwind.sqlproj",
+      "sha256": "563e3778f4f3c20e5b7bee66b7e7c796a754851674fedd66e8b5655cec9e295d",
+      "size_bytes": 193
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/tests/Northwind.Tests.sqlproj",
+      "sha256": "5f752e99bb550b15043da928735bfc1c258597bfed3eca7421a9f8ee80f11ce3",
+      "size_bytes": 431
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/tests/StackAdaptationTests/StackAdaptationTests.sql",
+      "sha256": "ad3a6fa1d3e0f23967c01b7bbb882f038fbd675d83aa68960a21816e64eaa46e",
+      "size_bytes": 222
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/tests/StackAdaptationTests/test_Products_table_exists.sql",
+      "sha256": "4651a095fed6cc98db249585ac8dea5838d216251ef24b0d091dd72228713563",
+      "size_bytes": 270
+    }
+  ],
+  "hash_basis": "sha256 over canonical JSON (ensure_ascii=False, sort_keys=True, separators=(',', ':')) of hash_basis_payload; targets come from the primary code_draft_meta.targets, are normalized to repo-relative POSIX paths, sorted by path, and each file authenticates its bytes plus normalized git_mode (100755 iff the owner-execute bit is set, otherwise 100644)",
+  "hash_basis_payload": {
+    "algorithm": "sha256",
+    "files": [
+      {
+        "git_mode": "100644",
+        "path": ".config/dotnet-tools.json",
+        "sha256": "954a17ba299b14b04d80c98f1b275fa088ac170749edffa088fc2c04f505fcaf",
+        "size_bytes": 127
+      },
+      {
+        "git_mode": "100644",
+        "path": ".sqlfluff",
+        "sha256": "6d716cbd637f03ae99a918a71b74521702412260892ebde0682f419f3ec962e4",
+        "size_bytes": 64
+      },
+      {
+        "git_mode": "100644",
+        "path": "Directory.Build.props",
+        "sha256": "265679f3dd4bb88d0051cc63c202ebffca5dce081c3247bba4926aadd7a1a4aa",
+        "size_bytes": 486
+      },
+      {
+        "git_mode": "100644",
+        "path": "Makefile",
+        "sha256": "2579b91a845819552117a011cfde7e0714aeb6254e00f725c7e6edd212f37f72",
+        "size_bytes": 304
+      },
+      {
+        "git_mode": "100644",
+        "path": "NuGet.Config",
+        "sha256": "0bb71acddfc779b80a2be181242ed0888b3f7ba7a3dde86ae4c17022a68f5be8",
+        "size_bytes": 279
+      },
+      {
+        "git_mode": "100644",
+        "path": "README.md",
+        "sha256": "1a9fb416fe74cb7d094d08a7fed8db23f4ba7ccc2675c2129f133f9766a0a06c",
+        "size_bytes": 9815
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/playbooks/post_merge_audit.md",
+        "sha256": "1cc348f1e05ad9f0744b1e73c6ff9f3f5fca0b011ee2fe32a4e33a5eb0c2e654",
+        "size_bytes": 43680
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/playbooks/review_merge_range.md",
+        "sha256": "436810e82eafe902519b2077b89ae47b31ca10b4cbd4be89ec668547891fed17",
+        "size_bytes": 31613
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/playbooks/review_staged_or_commit.md",
+        "sha256": "7f74a28aff80b9106f8bfe1e110ca40d70c60d8d3151972e0ec413f0caf0bf78",
+        "size_bytes": 13251
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/stack_brief.md",
+        "sha256": "af2aec564f0fa3b9fe0710d2ccea17610dd2beff9a1b918583b8501cff5ee6e0",
+        "size_bytes": 16369
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/architect_status_driven.md",
+        "sha256": "cae90f5555193d5b645d5bd6ccb3d04bdbdb4d9e558cf8618f2710283c8509b4",
+        "size_bytes": 85430
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/coder_migrations_gate.md",
+        "sha256": "568025588ada0b1bb94a014e3d48fc35be953ee0ce4a04da35bfd7a18d4c1c1f",
+        "size_bytes": 9299
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/coder_status_driven.md",
+        "sha256": "adec21ddd3c064eabc0db71a9e5e4e20c00f36d4ca1d85b078ae9e5426900ce0",
+        "size_bytes": 55244
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/planner_status_driven.md",
+        "sha256": "fdf523bb844be7d3cd17753908a987782ad4a44cd59006cafb95f6f500fdc508",
+        "size_bytes": 66384
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/reviewer_status_driven.md",
+        "sha256": "0f329a8b027533fbca9bae8b3073414277c7f1953dca7d80b66886dda9ad8388",
+        "size_bytes": 109061
+      },
+      {
+        "git_mode": "100644",
+        "path": "global.json",
+        "sha256": "ca5cda7dce0682dfac96712ef60b639d85feacd7349814a74decd3bf4200e178",
+        "size_bytes": 69
+      },
+      {
+        "git_mode": "100644",
+        "path": "requirements-dev.txt",
+        "sha256": "b399337ac70b9be1c07ac41b4d763e3026a1805fe2a3917e717b12fbe78fdcc9",
+        "size_bytes": 16
+      },
+      {
+        "git_mode": "100644",
+        "path": "scripts/sql.py",
+        "sha256": "40d5b0ae2226598c9cb667103f5f8f639ef684eddd5ae11a896d3424f18648dd",
+        "size_bytes": 32361
+      },
+      {
+        "git_mode": "100644",
+        "path": "scripts/test_sql.py",
+        "sha256": "19ad63feb3840386a9e1ffe2554aac382fbad438ba6c3daa9faee0332abdbea3",
+        "size_bytes": 42907
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Authored/.gitkeep",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_bytes": 0
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/StoredProcedures/CustOrderHist.sql",
+        "sha256": "49e23807016e4324f62f11c08f5258810826a0bcb7286561d0c4151e2d166142",
+        "size_bytes": 303
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/StoredProcedures/CustOrdersDetail.sql",
+        "sha256": "51735833c308eec51f75ab0afe71c8aceb50bc26f84be6f8b09da2c9dbe9ed02",
+        "size_bytes": 352
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/StoredProcedures/CustOrdersOrders.sql",
+        "sha256": "a1e0e249410cebc427c662ad2e8f9074d8e9264a19c87bc422fd91bd8926b330",
+        "size_bytes": 181
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/StoredProcedures/Employee Sales by Country.sql",
+        "sha256": "b1eef3d794d7b7a883efb9126aa87e836ba15e752d9094357dfb3628cd51312c",
+        "size_bytes": 471
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/StoredProcedures/Sales by Year.sql",
+        "sha256": "ecd113276110a1d590f059fb0f5e6ddc8d11badb072954264424c7e180815af6",
+        "size_bytes": 349
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/StoredProcedures/SalesByCategory.sql",
+        "sha256": "31f1f309bbf952bbd9e3c108bd52e99e8bf604c5dbe6ba8acda5a54272447b54",
+        "size_bytes": 635
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/StoredProcedures/Ten Most Expensive Products.sql",
+        "sha256": "5a720c9660978a71764d17c827192c8d1b5836ffee186b2d1fb2d1582776d62a",
+        "size_bytes": 195
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Tables/Categories.sql",
+        "sha256": "877e76f8b1a56c292c964ed0a30d8cba7cffa6af5083e36aa7d4bde58743e460",
+        "size_bytes": 389
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Tables/CustomerCustomerDemo.sql",
+        "sha256": "7f8d3425b4e2b53fd4d830bece384453817c74c28a628d5d0d2950134888876d",
+        "size_bytes": 499
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Tables/CustomerDemographics.sql",
+        "sha256": "9835da7519133dee4718bfe5591c5882bdb92fce305f8e739801d8bef10b1636",
+        "size_bytes": 222
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Tables/Customers.sql",
+        "sha256": "de521a92200192fab73b4c6d19431c8bb6d14b20768955ca1388f99aff8b0531",
+        "size_bytes": 888
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Tables/EmployeeTerritories.sql",
+        "sha256": "80497f0e2b461f1cbfa4192c1116c520a05ad9eb8a09ddaaa6f4c900b227c828",
+        "size_bytes": 489
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Tables/Employees.sql",
+        "sha256": "1d3a8929df085d217176c3add824d9bef935d95676f66add2a4060ae987106f0",
+        "size_bytes": 1261
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Tables/Order Details.sql",
+        "sha256": "749d5c9d3f48e8a7f3bc6ab324f470557b93a2b74015907ef91c33139ae40ebb",
+        "size_bytes": 1249
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Tables/Orders.sql",
+        "sha256": "251bbeccbe5daeda6cce85e46dc00569bd49994095593f39ff840135cb274e80",
+        "size_bytes": 1771
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Tables/Products.sql",
+        "sha256": "cca3dc75792e1fe1ad97c784c5d9dab62058094d5d7b6427bc8ec719f1ed589f",
+        "size_bytes": 1747
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Tables/Region.sql",
+        "sha256": "7b1224abd09101cc3ad2a664290f92918044bc886d6250c01a2acd459ad5e7fc",
+        "size_bytes": 198
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Tables/Shippers.sql",
+        "sha256": "036aef470e9032788df39837950e52990bd78b405831dc1ced5aecef7760f380",
+        "size_bytes": 248
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Tables/Suppliers.sql",
+        "sha256": "d38d4cd54aa6244a9c2bc34250e3b76f83622498c889487930e3014b67a57d20",
+        "size_bytes": 785
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Tables/Territories.sql",
+        "sha256": "3a5991234b431c1de819660c303f4fc0943dcbf0096cf5424ec3dd0b45f814db",
+        "size_bytes": 378
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Views/Alphabetical list of products.sql",
+        "sha256": "bd2731e91b34b950c8b20554d7fcc76aa54f6d9b63c81a71b001412560295110",
+        "size_bytes": 215
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Views/Category Sales for 1997.sql",
+        "sha256": "ede5e49006c209f75fa0184ec74115c295aac7a168f3aeae096cedbf4613ece9",
+        "size_bytes": 230
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Views/Current Product List.sql",
+        "sha256": "7ccece2955d0f76851fdea17e2148f741b068fec467d638524ddaa69bf1b5f6c",
+        "size_bytes": 206
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Views/Customer and Suppliers by City.sql",
+        "sha256": "77c8f599fdab02985110cb5b6eedf44ef349db19cae2c0d85d2e43c4a97c06c6",
+        "size_bytes": 239
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Views/Invoices.sql",
+        "sha256": "6abc933fbafccc45da51bc201f8a25e611d05a8c578a6571e2d377dea1cb2698",
+        "size_bytes": 1095
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Views/Order Details Extended.sql",
+        "sha256": "6c5f64879ec73624c3264763d11f501c766111884e8835575d62775a3d0f5b65",
+        "size_bytes": 428
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Views/Order Subtotals.sql",
+        "sha256": "530dc0c8f3732dfbc26ae92cbea8abd07e5ac48b3078cf765457f28c3ecca260",
+        "size_bytes": 215
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Views/Orders Qry.sql",
+        "sha256": "1f4ed2db1394dde4e2f98bd06c1ee935d6ad0f7a255e67ccdb95f0db0b7d93b7",
+        "size_bytes": 501
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Views/Product Sales for 1997.sql",
+        "sha256": "0a3801d991cb6773bb388242f28bbc8694eebe76ff0497f60d780a7e49928d47",
+        "size_bytes": 548
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Views/Products Above Average Price.sql",
+        "sha256": "269e1eca5101c02618788bcca70b551e4ceab88ca17b74867a46b73f7d823d0f",
+        "size_bytes": 212
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Views/Products by Category.sql",
+        "sha256": "252ed41e049fd8ee7f38fcb2b3cb939da0a95895f6af2eb5ca54edc856c6bb46",
+        "size_bytes": 342
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Views/Quarterly Orders.sql",
+        "sha256": "5777a988d5edfd29906c8b561eab0d0325b223b6de222b55ea8640e7db7faffc",
+        "size_bytes": 269
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Views/Sales Totals by Amount.sql",
+        "sha256": "efcd60945e837ce1add10a1e69f021ba1d7462d0ad74bd4ec53446c75b3ce9f4",
+        "size_bytes": 413
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Views/Sales by Category.sql",
+        "sha256": "e6690820b846218b1be6d8a40ad9314f0ccf233c7d035f8fca9c8961405dee2f",
+        "size_bytes": 613
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Views/Summary of Sales by Quarter.sql",
+        "sha256": "aa02ab38f6397a279b9ede18d112423e1110fc060593041f36246057f8e8b07b",
+        "size_bytes": 275
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Imported/dbo/Views/Summary of Sales by Year.sql",
+        "sha256": "b0b1f112a36bfd43472c460ec06e3440eea5b07ffdba6e5a17b4fb10b2a19771",
+        "size_bytes": 272
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Northwind.sqlproj",
+        "sha256": "563e3778f4f3c20e5b7bee66b7e7c796a754851674fedd66e8b5655cec9e295d",
+        "size_bytes": 193
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/tests/Northwind.Tests.sqlproj",
+        "sha256": "5f752e99bb550b15043da928735bfc1c258597bfed3eca7421a9f8ee80f11ce3",
+        "size_bytes": 431
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/tests/StackAdaptationTests/StackAdaptationTests.sql",
+        "sha256": "ad3a6fa1d3e0f23967c01b7bbb882f038fbd675d83aa68960a21816e64eaa46e",
+        "size_bytes": 222
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/tests/StackAdaptationTests/test_Products_table_exists.sql",
+        "sha256": "4651a095fed6cc98db249585ac8dea5838d216251ef24b0d091dd72228713563",
+        "size_bytes": 270
+      }
+    ],
+    "schema_version": "review_target_snapshot.hash_basis.v2"
+  },
+  "plan": "docs/plans/261011_1523_stack_adaptation.md",
+  "schema_version": "review_target_snapshot.v2",
+  "target": "BUNDLE=current bundle_sha256=171833e40098d72075515cbbc29f20e0021325aea5b7479afe0111a872bf8302",
+  "target_paths": [
+    ".config/dotnet-tools.json",
+    ".sqlfluff",
+    "Directory.Build.props",
+    "Makefile",
+    "NuGet.Config",
+    "README.md",
+    "docs/playbooks/post_merge_audit.md",
+    "docs/playbooks/review_merge_range.md",
+    "docs/playbooks/review_staged_or_commit.md",
+    "docs/stack_brief.md",
+    "docs/tools/prompts/architect_status_driven.md",
+    "docs/tools/prompts/coder_migrations_gate.md",
+    "docs/tools/prompts/coder_status_driven.md",
+    "docs/tools/prompts/planner_status_driven.md",
+    "docs/tools/prompts/reviewer_status_driven.md",
+    "global.json",
+    "requirements-dev.txt",
+    "scripts/sql.py",
+    "scripts/test_sql.py",
+    "sql/Northwind/Authored/.gitkeep",
+    "sql/Northwind/Imported/dbo/StoredProcedures/CustOrderHist.sql",
+    "sql/Northwind/Imported/dbo/StoredProcedures/CustOrdersDetail.sql",
+    "sql/Northwind/Imported/dbo/StoredProcedures/CustOrdersOrders.sql",
+    "sql/Northwind/Imported/dbo/StoredProcedures/Employee Sales by Country.sql",
+    "sql/Northwind/Imported/dbo/StoredProcedures/Sales by Year.sql",
+    "sql/Northwind/Imported/dbo/StoredProcedures/SalesByCategory.sql",
+    "sql/Northwind/Imported/dbo/StoredProcedures/Ten Most Expensive Products.sql",
+    "sql/Northwind/Imported/dbo/Tables/Categories.sql",
+    "sql/Northwind/Imported/dbo/Tables/CustomerCustomerDemo.sql",
+    "sql/Northwind/Imported/dbo/Tables/CustomerDemographics.sql",
+    "sql/Northwind/Imported/dbo/Tables/Customers.sql",
+    "sql/Northwind/Imported/dbo/Tables/EmployeeTerritories.sql",
+    "sql/Northwind/Imported/dbo/Tables/Employees.sql",
+    "sql/Northwind/Imported/dbo/Tables/Order Details.sql",
+    "sql/Northwind/Imported/dbo/Tables/Orders.sql",
+    "sql/Northwind/Imported/dbo/Tables/Products.sql",
+    "sql/Northwind/Imported/dbo/Tables/Region.sql",
+    "sql/Northwind/Imported/dbo/Tables/Shippers.sql",
+    "sql/Northwind/Imported/dbo/Tables/Suppliers.sql",
+    "sql/Northwind/Imported/dbo/Tables/Territories.sql",
+    "sql/Northwind/Imported/dbo/Views/Alphabetical list of products.sql",
+    "sql/Northwind/Imported/dbo/Views/Category Sales for 1997.sql",
+    "sql/Northwind/Imported/dbo/Views/Current Product List.sql",
+    "sql/Northwind/Imported/dbo/Views/Customer and Suppliers by City.sql",
+    "sql/Northwind/Imported/dbo/Views/Invoices.sql",
+    "sql/Northwind/Imported/dbo/Views/Order Details Extended.sql",
+    "sql/Northwind/Imported/dbo/Views/Order Subtotals.sql",
+    "sql/Northwind/Imported/dbo/Views/Orders Qry.sql",
+    "sql/Northwind/Imported/dbo/Views/Product Sales for 1997.sql",
+    "sql/Northwind/Imported/dbo/Views/Products Above Average Price.sql",
+    "sql/Northwind/Imported/dbo/Views/Products by Category.sql",
+    "sql/Northwind/Imported/dbo/Views/Quarterly Orders.sql",
+    "sql/Northwind/Imported/dbo/Views/Sales Totals by Amount.sql",
+    "sql/Northwind/Imported/dbo/Views/Sales by Category.sql",
+    "sql/Northwind/Imported/dbo/Views/Summary of Sales by Quarter.sql",
+    "sql/Northwind/Imported/dbo/Views/Summary of Sales by Year.sql",
+    "sql/Northwind/Northwind.sqlproj",
+    "sql/tests/Northwind.Tests.sqlproj",
+    "sql/tests/StackAdaptationTests/StackAdaptationTests.sql",
+    "sql/tests/StackAdaptationTests/test_Products_table_exists.sql"
+  ],
+  "target_snapshot": {
+    "bundle_sha256": "171833e40098d72075515cbbc29f20e0021325aea5b7479afe0111a872bf8302",
+    "target": "BUNDLE=current"
+  }
+}
+}

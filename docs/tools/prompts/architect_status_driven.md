@@ -381,8 +381,16 @@ authority остаются в этом prompt вне локальных секц
 
 ## Локальные правила стека
 
-- Ограничения, термины и условия применимости: N/A (why=stack-specific rule not configured)
-- Архитектурный критерий приёмки и evidence: N/A (why=stack-specific rule not configured)
+- Architect после реализации запускает только make db-state. Сверяет current offline checks, два independent JUnit и current review; пустой отчёт/старые результаты не принимаются за canary. GetReorderCandidates — отдельное прямое поручение после sibling ready.
+- SQL Server 2019, compatibility 150; Northwind — только readonly источник схемы. Запись разрешена только в отдельную назначенную dev-базу. Сервер, базы, логины, CLR и маркер planveyor.designated_dev готовит администратор; роли их не меняют.
+- Проектные команды — только make из корня sibling. Python 3.12 из подготовленного PATH; SDK 10.0.401/latestFeature, SqlPackage 170.5.96, Microsoft.Build.Sql 2.3.0, tSQLt.Dacpacs 1.0.8083.3529/tSQLt.2019, SQLFluff 3.4.2/tsql/raw/120. Зависимости и build/cache — только .tmp; после setup offline цели ничего не восстанавливают.
+- .env.local: regular/non-symlink, 0600, ignored/untracked; SQLCMDSERVER, SQLCMDDBNAME, SQLCMDUSER, SQLCMDPASSWORD читает только scripts/sql.py. Роли значения не читают. Пароль sqlcmd — environment, SqlPackage — принятый аргумент; raw streams/argv/ошибки/сведения сервера не публикуются.
+- Publish требует непосредственно предшествующий свежий one-query guard: DB_NAME совпадает с настройкой, database-level marker существует без чтения значения, sysadmin=0. Northwind case/padding variants запрещены. Отказ цели — 3 без Publish; недостающие права не исправляют серверными изменениями.
+- db-proof требует relative .xml JUNIT внутри проекта без symlink, достоверно Git-untracked. Path/Git/config отказ до удаления/build/SQL; допустимый old XML удалён до сборки. RunAll без параметров, затем unchanged XmlResultFormatter; go-sqlcmd --encrypt-connection=mandatory -C -b, XML -h -1 -y 0 -w 65535. Новый очищенный JUnit записывается атомарно; старый XML/текст успеха не доказательство.
+- Коды обвязки: 0 success, 1 test/JUnit, 2 config/path/Git/secrets/invalid Extract, 3 target, 4 connection/read SQL, 5 build/lint/Extract artifact, 6 Publish. Код make фиксируется отдельно; auto-retry SQL нет.
+- Evidence: portable make command, коды make/обвязки, HEAD, canonical bundle_sha256 до/после proof, relative JUnit path/SHA-256, counts/testcase. Coder и Reviewer последовательно получают разные JUnit 1/0/0/0 единственного StackAdaptationTests.[test Products table exists]; db-state contextual-only. Любые target edits после proof требуют нового snapshot/proof.
+
+- Git lookup JUNIT literal: pathspec magic/пробелы/metacharacters не являются pattern. Ambient GIT_DIR/GIT_WORK_TREE/GIT_COMMON_DIR/GIT_INDEX_FILE, даже пустые, дают operational-red отказ 2 до JUNIT/config/deletion/build/SQL; обвязка не сбрасывает overrides и не выбирает другой index.
 
 ## Разрешённое локальное переопределение процесса
 

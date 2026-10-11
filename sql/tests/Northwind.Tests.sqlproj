@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.Build.Sql/2.3.0">
+  <PropertyGroup>
+    <Name>Northwind.Tests</Name>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql150DatabaseSchemaProvider</DSP>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Northwind/Northwind.sqlproj" />
+    <PackageReference Include="tSQLt.Dacpacs" Version="1.0.8083.3529">
+      <DacpacName>tSQLt.2019</DacpacName>
+    </PackageReference>
+  </ItemGroup>
+</Project>
