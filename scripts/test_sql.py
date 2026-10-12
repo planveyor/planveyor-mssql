@@ -16,14 +16,64 @@ import xml.etree.ElementTree as ET
 import sql
 
 SYNTHETIC = dict(zip(sql.KEYS, ('fixture.invalid', 'DesignatedDev', 'fixture-user', 'fixture-secret')))
-GOOD_XML = ('<testsuites><testsuite name="StackAdaptationTests" tests="1" failures="0" errors="0" skipped="0" '
+# Independent literal fixture inventory: never derive this oracle from sql.EXPECTED_TESTS.
+FIXTURE_TESTS = {
+    'GetReorderCandidatesTests': (
+        'test T1 empty Products returns empty result',
+        'test T2 active shortage is returned',
+        'test T3 zero and negative shortage excluded',
+        'test T4 on order units cover shortage',
+        'test T5 discontinued products excluded',
+        'test T6 numeric nulls treated as zero',
+        'test T7 smallint arithmetic does not overflow',
+        'test T8 result metadata and ProductID order',
+    ),
+    'StackAdaptationTests': ('test Products table exists',),
+}
+GOOD_XML = ('<testsuites tests="9" failures="0" errors="0" skipped="0">'
+            '<testsuite name="GetReorderCandidatesTests" tests="8" failures="0" errors="0" skipped="0" '
+            'hostname="fixture.invalid"><properties/>'
+            '<testcase classname="GetReorderCandidatesTests" name="test T1 empty Products returns empty result"/>'
+            '<testcase classname="GetReorderCandidatesTests" name="test T2 active shortage is returned"/>'
+            '<testcase classname="GetReorderCandidatesTests" name="test T3 zero and negative shortage excluded"/>'
+            '<testcase classname="GetReorderCandidatesTests" name="test T4 on order units cover shortage"/>'
+            '<testcase classname="GetReorderCandidatesTests" name="test T5 discontinued products excluded"/>'
+            '<testcase classname="GetReorderCandidatesTests" name="test T6 numeric nulls treated as zero"/>'
+            '<testcase classname="GetReorderCandidatesTests" name="test T7 smallint arithmetic does not overflow"/>'
+            '<testcase classname="GetReorderCandidatesTests" name="test T8 result metadata and ProductID order"/>'
+            '<system-out/><system-err/></testsuite>'
+            '<testsuite name="StackAdaptationTests" tests="1" failures="0" errors="0" skipped="0" '
             'hostname="fixture.invalid"><properties/><testcase classname="StackAdaptationTests" '
             'name="test Products table exists"/><system-out/><system-err/></testsuite></testsuites>')
+CANARY_ONLY_XML = ('<testsuites><testsuite name="StackAdaptationTests" tests="1" failures="0" errors="0" '
+                   'skipped="0"><testcase classname="StackAdaptationTests" '
+                   'name="test Products table exists"/></testsuite></testsuites>')
 LOCAL_FILES = ['docs/tools/prompts/' + name + '.md' for name in
                ('architect_status_driven', 'planner_status_driven', 'coder_status_driven',
                 'coder_migrations_gate', 'reviewer_status_driven')] + [
                'docs/playbooks/' + name + '.md' for name in
                ('review_staged_or_commit', 'review_merge_range', 'post_merge_audit')]
+
+
+def recount_fixture(root):
+    totals = dict.fromkeys(('tests', 'failures', 'errors', 'skipped'), 0)
+    for suite in root:
+        cases = suite.findall('testcase')
+        counts = {'tests': len(cases), **{
+            key: sum(len(case.findall(tag)) for case in cases)
+            for tag, key in (('failure', 'failures'), ('error', 'errors'), ('skipped', 'skipped'))}}
+        suite.attrib.update({key: str(value) for key, value in counts.items()})
+        for key in totals:
+            totals[key] += counts[key]
+    root.attrib.update({key: str(value) for key, value in totals.items()})
+    return ET.tostring(root, encoding='unicode')
+
+
+def red_fixture(tag):
+    root = ET.fromstring(GOOD_XML)
+    case = root.find('./testsuite/testcase')
+    ET.SubElement(case, tag, message='fixture-secret').text = 'fixture.invalid'
+    return recount_fixture(root)
 
 
 def make_tree(tree):
@@ -417,11 +467,11 @@ class JUnitPathTests(Fixture):
         p.unlink()
         self.prove('CanonicalReports/new.xml')
         self.assertFalse(p.exists())
-        self.assertEqual('1', ET.parse(p.parent / 'new.xml').getroot().get('tests'))
+        self.assertEqual('9', ET.parse(p.parent / 'new.xml').getroot().get('tests'))
         shutil.rmtree(p.parent)
         self.prove('CanonicalReports/new/deep.xml')
         self.assertFalse(p.exists())
-        self.assertEqual('1', ET.parse(p.parent / 'new/deep.xml').getroot().get('tests'))
+        self.assertEqual('9', ET.parse(p.parent / 'new/deep.xml').getroot().get('tests'))
 
     def test_missing_indexed_unicode_alias_refuses_without_recreation(self):
         p = self.root / 'NormalizationCaf\u00e9.xml'
@@ -523,9 +573,9 @@ class JUnitPathTests(Fixture):
         p.write_bytes(b'UNTRACKED OLD XML')
         self.prove('CanonicalReports/untracked.xml')
         self.assertNotEqual(b'UNTRACKED OLD XML', p.read_bytes())
-        self.assertEqual('1', ET.fromstring(p.read_bytes()).get('tests'))
+        self.assertEqual('9', ET.fromstring(p.read_bytes()).get('tests'))
         self.prove('CanonicalReports/new/deep.xml')
-        self.assertEqual('1', ET.parse(p.parent / 'new/deep.xml').getroot().get('tests'))
+        self.assertEqual('9', ET.parse(p.parent / 'new/deep.xml').getroot().get('tests'))
 
     def test_tracked_magic_filenames_are_literal_and_preserved(self):
         for value in (':(literal)canary.xml', ':(exclude)canary.xml', ':(glob)canary.xml',
@@ -618,9 +668,166 @@ class JUnitPathTests(Fixture):
         self.assertTrue((self.root / 'reports/a space;$data.xml').is_file())
 
 
+class JUnitParserTests(unittest.TestCase):
+    def reject(self, root):
+        raw = ET.tostring(root, encoding='unicode') if isinstance(root, ET.Element) else root
+        with self.assertRaises(sql.Refusal) as caught:
+            sql.parse_junit(raw)
+        self.assertEqual(1, caught.exception.code)
+
+    def test_literal_native_inventory_and_permutations(self):
+        expected = {(c, n) for c, names in FIXTURE_TESTS.items() for n in names}
+        for reverse in (False, True):
+            root = ET.fromstring(GOOD_XML)
+            if reverse:
+                root[:] = list(reversed(root))
+                for suite in root: suite[:] = list(reversed(suite))
+            data, counts = sql.parse_junit(ET.tostring(root, encoding='unicode'))
+            self.assertEqual({'tests': 9, 'failures': 0, 'errors': 0, 'skipped': 0}, counts)
+            self.assertEqual(expected, {(n.get('classname'), n.get('name'))
+                                        for n in ET.fromstring(data).iter('testcase')})
+
+    def test_known_spellings_and_optional_root_counters(self):
+        for bracketed_class in (False, True):
+            for spelling in range(4):
+                root = ET.fromstring(GOOD_XML)
+                root.attrib.clear()
+                for suite in root:
+                    classname = suite.get('name')
+                    if bracketed_class: suite.set('name', '[' + classname + ']')
+                    for case in suite.findall('testcase'):
+                        name = case.get('name')
+                        case.set('classname', suite.get('name'))
+                        case.set('name', (name, '[' + name + ']', classname + '.' + name,
+                                         '[' + classname + '].[' + name + ']')[spelling])
+                _, counts = sql.parse_junit(ET.tostring(root, encoding='unicode'))
+                self.assertEqual(9, counts['tests'])
+
+    def test_each_missing_identity_even_with_coherent_counts(self):
+        for classname, names in FIXTURE_TESTS.items():
+            for name in names:
+                with self.subTest(identity=(classname, name)):
+                    root = ET.fromstring(GOOD_XML)
+                    suite = next(s for s in root if s.get('name') == classname)
+                    suite.remove(next(c for c in suite.findall('testcase') if c.get('name') == name))
+                    self.reject(recount_fixture(root))
+
+    def test_unknown_extra_mismatched_and_duplicate_identities(self):
+        mutations = (
+            lambda s, c: c.set('name', 'unknown test'),
+            lambda s, c: c.set('classname', 'Other'),
+            lambda s, c: c.set('classname', 'StackAdaptationTests'),
+            lambda s, c: c.set('name', 'StackAdaptationTests.test Products table exists'),
+            lambda s, c: s.set('name', 'Other'),
+            lambda s, c: s.append(ET.Element('testcase', classname='GetReorderCandidatesTests', name='unknown test')),
+        )
+        for mutation in mutations:
+            root = ET.fromstring(GOOD_XML)
+            suite = root[0]
+            mutation(suite, suite.find('testcase'))
+            self.reject(recount_fixture(root))
+        for classname, names in FIXTURE_TESTS.items():
+            for name in names:
+                for alternative in (name, '[' + classname + '].[' + name + ']'):
+                    with self.subTest(identity=(classname, name), alternative=alternative):
+                        root = ET.fromstring(GOOD_XML)
+                        suite = next(s for s in root if s.get('name') == classname)
+                        suite.append(ET.Element('testcase', classname='[' + classname + ']', name=alternative))
+                        self.reject(recount_fixture(root))
+        # Same cardinality and coherent counters still cannot hide a duplicate.
+        root = ET.fromstring(GOOD_XML)
+        cases = root[0].findall('testcase')
+        cases[1].set('name', '[' + cases[0].get('name') + ']')
+        self.reject(root)
+
+    def test_stale_canary_standalone_missing_empty_and_duplicate_suites(self):
+        for raw in (CANARY_ONLY_XML, '<testsuites/>', '<testsuites tests="0"/>',
+                    ET.tostring(ET.fromstring(GOOD_XML)[0], encoding='unicode')):
+            self.reject(raw)
+        for mutation in (
+            lambda root: root.remove(root[1]),
+            lambda root: root[0].clear(),
+            lambda root: root[1].set('name', root[0].get('name')),
+            lambda root: root.append(ET.Element('testsuite', name='Other')),
+            lambda root: root[0].remove(root[0].find('testcase')),
+        ):
+            root = ET.fromstring(GOOD_XML)
+            mutation(root)
+            self.reject(root)
+        root = ET.fromstring(GOOD_XML)
+        for case in root[0].findall('testcase'): root[0].remove(case)
+        self.reject(recount_fixture(root))
+
+    def test_counter_shape_missing_suite_and_root_suite_mismatch(self):
+        for node_index in (-1, 0, 1):
+            for key in ('tests', 'failures', 'errors', 'skipped'):
+                for value in ('-1', '1.0', '00', '999', '9' * 5000):
+                    root = ET.fromstring(GOOD_XML)
+                    node = root if node_index == -1 else root[node_index]
+                    node.set(key, value)
+                    self.reject(root)
+                if node_index >= 0:
+                    root = ET.fromstring(GOOD_XML)
+                    del root[node_index].attrib[key]
+                    self.reject(root)
+
+    def test_green_totals_never_override_red_testcase(self):
+        for tag in ('failure', 'error', 'skipped'):
+            for suite_index in (0, 1):
+                root = ET.fromstring(GOOD_XML)
+                ET.SubElement(root[suite_index].find('testcase'), tag)
+                self.reject(root)
+
+    def test_coherent_red_is_cleaned_without_changing_verdict(self):
+        root = ET.fromstring(GOOD_XML)
+        cases = root[0].findall('testcase')[:2] + root[1].findall('testcase')
+        for case, tag in zip(cases, ('failure', 'error', 'skipped')):
+            ET.SubElement(case, tag, message='fixture-secret').text = 'fixture.invalid'
+        data, counts = sql.parse_junit(recount_fixture(root))
+        self.assertEqual({'tests': 9, 'failures': 1, 'errors': 1, 'skipped': 1}, counts)
+        clean = ET.fromstring(data)
+        for tag in ('failure', 'error', 'skipped'): self.assertEqual(1, len(list(clean.iter(tag))))
+        self.assertNotIn(b'fixture-secret', data)
+        self.assertNotIn(b'fixture.invalid', data)
+
+    def test_nested_misplaced_duplicate_and_unsupported_result_nodes(self):
+        for tag in ('failure', 'error', 'skipped'):
+            for location in ('root', 'suite', 'properties', 'stream', 'case-wrapper', 'nested', 'duplicate', 'mixed'):
+                with self.subTest(tag=tag, location=location):
+                    root = ET.fromstring(GOOD_XML)
+                    suite, case = root[0], root[0].find('testcase')
+                    parent = {'root': root, 'suite': suite, 'properties': suite.find('properties'),
+                              'stream': suite.find('system-out')}.get(location)
+                    if parent is not None:
+                        ET.SubElement(parent, tag)
+                    elif location == 'case-wrapper':
+                        ET.SubElement(ET.SubElement(case, 'properties'), tag)
+                    elif location == 'nested':
+                        ET.SubElement(ET.SubElement(case, tag), tag)
+                    else:
+                        ET.SubElement(case, tag)
+                        ET.SubElement(case, tag if location == 'duplicate' else
+                                      ('error' if tag != 'error' else 'failure'))
+                    self.reject(root)
+        for location in ('suite', 'case'):
+            root = ET.fromstring(GOOD_XML)
+            ET.SubElement(root[0] if location == 'suite' else root[0].find('testcase'), 'unsupported')
+            self.reject(root)
+
+    def test_malformed_truncated_dtd_entity_and_extra_document(self):
+        for raw in ('', GOOD_XML[:-20], GOOD_XML + GOOD_XML, '<wrong/>',
+                    '<!DOCTYPE x>' + GOOD_XML, '<!ENTITY x "y">' + GOOD_XML,
+                    GOOD_XML.replace('tests="8"', 'tests="8" tests="8"')):
+            self.reject(raw)
+
+
 class ProofTests(Fixture):
     def test_current_success_stage_order(self):
-        self.prove()
+        old = self.root / 'reports/canary.xml'
+        old.parent.mkdir()
+        old.write_bytes(b'OLD GREEN XML')
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out): self.prove()
         actions = [argv[argv.index('-Q') + 1] if '-Q' in argv else
                    next((x for x in argv if x.startswith('/Action:')), '')
                    for argv, _, _ in self.fake.calls]
@@ -633,8 +840,15 @@ class ProofTests(Fixture):
         self.assertEqual(60, formatter[2])
         self.assertEqual(120, next(c[2] for c in self.fake.calls if 'EXEC tSQLt.RunAll;' in c[0]))
         xml = ET.parse(self.root / 'reports/canary.xml').getroot()
-        self.assertEqual({'tests': '1', 'failures': '0', 'errors': '0', 'skipped': '0'}, xml.attrib)
-        self.assertEqual(1, len(list(xml.iter('testcase'))))
+        self.assertEqual({'tests': '9', 'failures': '0', 'errors': '0', 'skipped': '0'}, xml.attrib)
+        self.assertEqual(9, len(list(xml.iter('testcase'))))
+        self.assertEqual({(c, n) for c, names in FIXTURE_TESTS.items() for n in names},
+                         {(case.get('classname'), case.get('name')) for case in xml.iter('testcase')})
+        self.assertIn('JUnit tests=9 failures=0 errors=0 skipped=0;', out.getvalue())
+        for c, names in FIXTURE_TESTS.items():
+            for name in names: self.assertIn(c + '.' + name, out.getvalue())
+        self.assertNotEqual(b'OLD GREEN XML', old.read_bytes())
+        self.assertEqual([], list(old.parent.glob('.junit-*')))
         self.assertFalse(any('SetTestResultFormatter' in ' '.join(c[0]) for c in self.fake.calls))
 
     def test_strict_malformed_and_inconsistent_xml(self):
@@ -643,6 +857,7 @@ class ProofTests(Fixture):
                    GOOD_XML.replace('tests="1"', 'tests="-1"'),
                    GOOD_XML.replace('tests="1"', 'tests="1.0"'),
                    GOOD_XML.replace('tests="1"', 'tests="2"'),
+                   GOOD_XML.replace('tests="9"', 'tests="' + '9' * 5000 + '"'),
                    GOOD_XML.replace('failures="0"', 'failures="1"'),
                    GOOD_XML.replace('tests="1"', 'tests="1" tests="1"'),
                    GOOD_XML.replace('classname="StackAdaptationTests"', 'classname="Other"'),
@@ -656,13 +871,14 @@ class ProofTests(Fixture):
 
     def test_failure_error_skipped_retained_and_fail(self):
         for tag, counter in (('failure', 'failures'), ('error', 'errors'), ('skipped', 'skipped')):
-            self.fake.xml = GOOD_XML.replace(counter + '="0"', counter + '="1"').replace(
-                'name="test Products table exists"/>',
-                'name="test Products table exists"><' + tag + ' message="fixture-secret">fixture.invalid</' + tag + '></testcase>')
-            self.code(1, self.prove)
+            self.fake.xml = red_fixture(tag)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out): self.code(1, self.prove)
             data = (self.root / 'reports/canary.xml').read_text()
             self.assertIn('<' + tag, data)
             self.assertNotIn('fixture-secret', data); self.assertNotIn('fixture.invalid', data)
+            self.assertEqual('1', ET.fromstring(data).get(counter))
+            self.assertNotIn('JUnit ', out.getvalue())
         self.fake.xml = GOOD_XML.replace('name="test Products table exists"/>',
             'name="test Products table exists"><failure/></testcase>')
         self.code(1, self.prove)  # green counters cannot override failing host projection
@@ -671,8 +887,13 @@ class ProofTests(Fixture):
         for outcome, code in (((1, 'Test Execution Summary: 1 Failures', ''), 1),
                               ((1, '', 'Login failed fixture.invalid'), 4),
                               (subprocess.TimeoutExpired('hidden', 120), 4)):
+            old = self.root / 'reports/canary.xml'
+            old.parent.mkdir(exist_ok=True)
+            old.write_text(GOOD_XML)
             self.fake.calls.clear(); self.fake.overrides['run-all'] = outcome
-            self.code(code, self.prove)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out): self.code(code, self.prove)
+            self.assertNotIn('JUnit ', out.getvalue())
             self.assertFalse((self.root / 'reports/canary.xml').exists())
             self.assertFalse(any('EXEC tSQLt.XmlResultFormatter;' in c[0] for c in self.fake.calls))
 
@@ -690,9 +911,14 @@ class ProofTests(Fixture):
     def test_publish_formatter_errors_and_timeout(self):
         for stage, code in (('publish', 6), ('formatter', 4)):
             for outcome in ((1, 'fixture-secret', 'fixture.invalid'), subprocess.TimeoutExpired('hidden', 300)):
+                old = self.root / 'reports/canary.xml'
+                old.parent.mkdir(exist_ok=True)
+                old.write_text(GOOD_XML)
                 self.fake.overrides[stage] = outcome
-                self.code(code, self.prove)
+                out = io.StringIO()
+                with contextlib.redirect_stdout(out): self.code(code, self.prove)
                 self.assertFalse((self.root / 'reports/canary.xml').exists())
+                self.assertNotIn('JUnit ', out.getvalue())
             self.fake.overrides.pop(stage)
 
 
@@ -795,13 +1021,45 @@ class RepositoryContractTests(Fixture):
         package = test_project.find('./ItemGroup/PackageReference')
         self.assertEqual('1.0.8083.3529', package.get('Version'))
         self.assertEqual('tSQLt.2019', package.findtext('DacpacName'))
-        text = '\n'.join(p.read_text() for p in (root / 'sql/tests').rglob('*.sql'))
-        self.assertEqual(1, len(re.findall(r'CREATE\s+PROCEDURE', text, re.I)))
-        self.assertIn("OBJECT_ID(N'dbo.Products', N'U')", text)
-        self.assertIn("N'tSQLt.TestClass'", text)
-        self.assertNotRegex(text, r'FakeTable|NewTestClass|INSERT|SELECT\s+\*')
+        canary_paths = ('sql/tests/StackAdaptationTests/StackAdaptationTests.sql',
+                        'sql/tests/StackAdaptationTests/test_Products_table_exists.sql')
+        canary = '\n'.join((root / p).read_text() for p in canary_paths)
+        self.assertEqual(1, len(re.findall(r'CREATE\s+PROCEDURE', canary, re.I)))
+        self.assertIn("OBJECT_ID(N'dbo.Products', N'U')", canary)
+        self.assertIn("N'tSQLt.TestClass'", canary)
+        self.assertNotRegex(canary, r'FakeTable|NewTestClass|INSERT|SELECT\s+\*|\bCOMMIT\b|\bROLLBACK\b')
+        for p in canary_paths:
+            self.assertEqual(subprocess.check_output(['git', '-C', str(root), 'show', 'HEAD:' + p]),
+                             (root / p).read_bytes(), p)
         lint = (root / '.sqlfluff').read_text()
         for term in ('dialect = tsql', 'templater = raw', 'max_line_length = 120'): self.assertIn(term, lint)
+
+    def test_business_class_exact_inventory_isolated_from_real_canary(self):
+        directory = sql.ROOT / 'sql/tests/GetReorderCandidatesTests'
+        class_file = directory / 'GetReorderCandidatesTests.sql'
+        self.assertRegex(class_file.read_text(), r'CREATE SCHEMA \[GetReorderCandidatesTests\]')
+        self.assertIn("N'tSQLt.TestClass'", class_file.read_text())
+        files = sorted(directory.glob('test_*.sql'))
+        self.assertEqual(8, len(files))
+        self.assertEqual(9, len(list(directory.glob('*.sql'))))
+        self.assertEqual({'GetReorderCandidatesTests', 'StackAdaptationTests'},
+                         {p.name for p in (sql.ROOT / 'sql/tests').iterdir() if p.is_dir()})
+        names = []
+        for file in files:
+            text = file.read_text()
+            declarations = re.findall(r'CREATE\s+PROCEDURE\s+\[GetReorderCandidatesTests\]\.\[([^]]+)\]', text, re.I)
+            self.assertEqual(1, len(declarations), file.name)
+            names += declarations
+            self.assertIn("EXEC [tSQLt].[FakeTable] @TableName = N'dbo.Products';", text)
+            self.assertIn('EXEC [dbo].[GetReorderCandidates];', text)
+            self.assertIn('[tSQLt].[AssertEqualsTable]', text)
+            self.assertNotRegex(text, r'NewTestClass|SELECT\s+\*|\bCOMMIT\b|\bROLLBACK\b')
+            if not file.name.startswith('test_T1_'):
+                self.assertIn('INSERT INTO [dbo].[Products]', text)
+                self.assertLess(text.index('[FakeTable]'), text.index('INSERT INTO [dbo].[Products]'))
+        self.assertEqual(list(FIXTURE_TESTS['GetReorderCandidatesTests']), names)
+        authored = (sql.ROOT / 'sql/Northwind/Authored/GetReorderCandidates.sql').read_text()
+        self.assertNotRegex(authored, r'\b(?:INSERT|UPDATE|DELETE|MERGE|COMMIT|ROLLBACK)\b|SELECT\s+\*')
 
     def test_shared_bytes_and_no_process_override(self):
         for p in LOCAL_FILES:
@@ -810,8 +1068,11 @@ class RepositoryContractTests(Fixture):
             boundary = '## Локальные правила стека'.encode()
             self.assertEqual(baseline.split(boundary)[0], current.split(boundary)[0], p)
             local = current.split(boundary)[1].decode()
-            self.assertNotRegex(local, r'261011_1523|/Users/|PLANVEYOR_RUNTIME_ROOT')
+            self.assertNotRegex(local, r'261011_1523|261012_0141|/Users/|PLANVEYOR_RUNTIME_ROOT')
             self.assertIn('N/A (why=no local override)', local)
+            self.assertIn('полный точный набор', local)
+            override = '## Разрешённое локальное переопределение процесса'.encode()
+            self.assertEqual(baseline.split(override)[1], current.split(override)[1], p)
 
     def test_secret_scan_tracked_untracked_and_explicit_xml(self):
         p = self.root / 'leak.txt'
@@ -832,7 +1093,10 @@ class RepositoryContractTests(Fixture):
                   '.config/dotnet-tools.json', '.sqlfluff', 'requirements-dev.txt',
                   'Directory.Build.props', 'NuGet.Config', *sql.PROJECTS,
                   'sql/tests/StackAdaptationTests/StackAdaptationTests.sql',
-                  'sql/tests/StackAdaptationTests/test_Products_table_exists.sql'):
+                  'sql/tests/StackAdaptationTests/test_Products_table_exists.sql',
+                  'sql/Northwind/Authored/GetReorderCandidates.sql',
+                  *[f.relative_to(sql.ROOT).as_posix() for f in
+                    (sql.ROOT / 'sql/tests/GetReorderCandidatesTests').glob('*.sql')]):
             text = (sql.ROOT / p).read_text()
             self.assertNotIn('PLANVEYOR_' + 'PATH_TRACKING_STUB', text)
             self.assertNotIn('Path-tracking' + ' stub;', text)

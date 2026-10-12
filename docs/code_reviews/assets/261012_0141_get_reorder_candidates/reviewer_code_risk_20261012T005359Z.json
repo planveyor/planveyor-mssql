@@ -1,0 +1,445 @@
+{
+  "run_id": "reviewer_code_risk:20261012T005359Z",
+  "lane_id": "reviewer_code_risk",
+  "runner_id": "codex",
+  "session_key": "reviewer_code_risk",
+  "sid": "N/A (why=native Codex SID not supplied)",
+  "profile": "unknown (why=REVIEWER_PROFILE not supplied)",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "ultra",
+  "prompt_file": "docs/tools/prompts/reviewer_status_driven.md",
+  "target_ref": "BUNDLE=current",
+  "coverage_domains": [
+    "correctness",
+    "tests quality",
+    "security/privacy",
+    "subprocess/timeouts",
+    "races/locks/atomicity",
+    "data/migrations",
+    "performance",
+    "observability",
+    "integrations",
+    "supply chain",
+    "failure semantics"
+  ],
+  "findings": [],
+  "lane_status": "no_findings",
+  "no_findings_reason": "В exact 21 targets не выявлены исправляемые нарушения correctness, отказов или безопасности. Прочитаны SQL T1–T8/canary, parser/proof и независимые fixtures; выполнены make db-build/lint/test/check-secrets и contextual db-state. Это результат Risk lane; самостоятельный live Reviewer proof и contracts synthesis принадлежат finalizer.",
+  "limits": [
+    "Risk lane не создаёт итоговый review artifact и не меняет top-level status.",
+    "make db-proof Reviewer, отдельный reorder.review.junit.xml и marker preservation после его Publish остаются обязанностью reviewer_code_contracts finalizer.",
+    "make test использует synthetic fixtures; Coder XML и db-state не выданы за независимый Reviewer SQL proof.",
+    "Планы выполнения, производительность, true concurrent Publish/RunAll и другие ОС/SQL-версии не проверялись; активный контракт задаёт последовательный SQL lane."
+  ],
+  "written_at": "2026-10-12T00:53:59Z",
+  "current": true,
+  "source_refs": [
+    "sql/Northwind/Authored/GetReorderCandidates.sql:1",
+    "sql/tests/GetReorderCandidatesTests/test_T6_numeric_nulls_treated_as_zero.sql:1",
+    "sql/tests/GetReorderCandidatesTests/test_T7_smallint_arithmetic_does_not_overflow.sql:1",
+    "sql/tests/GetReorderCandidatesTests/test_T8_result_metadata_and_ProductID_order.sql:1",
+    "scripts/sql.py:175",
+    "scripts/sql.py:546",
+    "scripts/test_sql.py:671",
+    "scripts/test_sql.py:823",
+    "scripts/test_sql.py:992"
+  ],
+  "delta": "Читающая процедура, восемь бизнес-тестов, strict двухклассовый JUnit/parser/proof и синхронные девять doc targets; прежние guard/path/Git/redaction/formatter interfaces сохранены.",
+  "outcome": "Risk lane no_findings на неизменном current bundle; finalizer ещё закрывает independent Reviewer SQL proof, contracts synthesis и текущий review.",
+  "target_snapshot": {
+  "bundle_sha256": "1c38104d57f154501e43c19b40b70912a02095644e56332986fc3a4790a30759",
+  "code_draft": "docs/code_drafts/261012_0141_get_reorder_candidates__code_draft.md",
+  "files": [
+    {
+      "git_mode": "100644",
+      "path": "README.md",
+      "sha256": "209807ccccaa1bcea5bf9cccb39fcb29d38b5ee5c28ca7ea674dda7f7b37e0a4",
+      "size_bytes": 11430
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/playbooks/post_merge_audit.md",
+      "sha256": "86d60ff825fff1779ebd2009712db1c7ec4ee4982493d880a86790c9cc7fa34e",
+      "size_bytes": 44161
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/playbooks/review_merge_range.md",
+      "sha256": "9e23cafee3cb327112326c17b83173d18b332ffee31f495dba46f5c37d554b9b",
+      "size_bytes": 32203
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/playbooks/review_staged_or_commit.md",
+      "sha256": "ecb0ca241f09f41efffb06f201a456572266103528b3cc6fe1fd42bf379823d6",
+      "size_bytes": 13732
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/architect_status_driven.md",
+      "sha256": "e6cc9dd4fd98efbe2554d6daadf95dac456fdcf85d614752ac055d6775eb044d",
+      "size_bytes": 86020
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/coder_migrations_gate.md",
+      "sha256": "4929f889d53684405b41cd1a89f7e909272ce4dfb78f1f8c1fc2a14286c5dd79",
+      "size_bytes": 9780
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/coder_status_driven.md",
+      "sha256": "feff04b80e65f76aa09978bae6739e0e64c43a6e858df548fcdac801a49fc80e",
+      "size_bytes": 55944
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/planner_status_driven.md",
+      "sha256": "7f69d918ecfcf9c4a23aba2fc0efc4671bd3b5d066d0ff3d68b78ecce53304d7",
+      "size_bytes": 66865
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/reviewer_status_driven.md",
+      "sha256": "28182fc52d40feb5763c2c4811ebacd785069bf6f7878cac8e68f35ed9ba0dcc",
+      "size_bytes": 109634
+    },
+    {
+      "git_mode": "100644",
+      "path": "scripts/sql.py",
+      "sha256": "d27064fe88b1d44fb1f2b3273857db10dd4b5535fe18eb9fe060ecea41cb6e1e",
+      "size_bytes": 34367
+    },
+    {
+      "git_mode": "100644",
+      "path": "scripts/test_sql.py",
+      "sha256": "fa60f177b687ea7b878575c32a20f4ddd8203c6a0188ab8e767016fdb56a60c9",
+      "size_bytes": 61918
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/Northwind/Authored/GetReorderCandidates.sql",
+      "sha256": "09519216db27eddcee68fe2d933a7394c483d9b8a67eb5d61c8528532be55b38",
+      "size_bytes": 629
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/tests/GetReorderCandidatesTests/GetReorderCandidatesTests.sql",
+      "sha256": "f5960022bc96b8c4160a4db0c136fb413d0bcc814488b99a6147c9ea5f3bfce7",
+      "size_bytes": 206
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/tests/GetReorderCandidatesTests/test_T1_empty_Products_returns_empty_result.sql",
+      "sha256": "6e0199b23be4ceba2caa34d9f0e9b68d243667d51e4d7d94325e7151aeb7a921",
+      "size_bytes": 631
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/tests/GetReorderCandidatesTests/test_T2_active_shortage_is_returned.sql",
+      "sha256": "0cabbb12e0002f45d0669f5e68489369b6a32546f58de90f6806183f1fd6cf18",
+      "size_bytes": 928
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/tests/GetReorderCandidatesTests/test_T3_zero_and_negative_shortage_excluded.sql",
+      "sha256": "dbf35956457d5d6521b684797557f2a43dba0f369dc07316b2d2e6d613451ef1",
+      "size_bytes": 867
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/tests/GetReorderCandidatesTests/test_T4_on_order_units_cover_shortage.sql",
+      "sha256": "5aa411cdd0c8055dc78d208db450e84f9aac93639dde25f0e387da5af34821c2",
+      "size_bytes": 821
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/tests/GetReorderCandidatesTests/test_T5_discontinued_products_excluded.sql",
+      "sha256": "549594f4adf003c64cd6714d7df5e8284003f219993e8a970ad198ee255fe448",
+      "size_bytes": 826
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/tests/GetReorderCandidatesTests/test_T6_numeric_nulls_treated_as_zero.sql",
+      "sha256": "8b2b36d7da94aabb97c5850d404c52aefafeeb2716d5a4521eaeef761c6b7d59",
+      "size_bytes": 1293
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/tests/GetReorderCandidatesTests/test_T7_smallint_arithmetic_does_not_overflow.sql",
+      "sha256": "c0872f1f55aff60472c39745904194d8a8b418d141b8759e37b5ee0092ba4e87",
+      "size_bytes": 840
+    },
+    {
+      "git_mode": "100644",
+      "path": "sql/tests/GetReorderCandidatesTests/test_T8_result_metadata_and_ProductID_order.sql",
+      "sha256": "9f23be9f094135b0c3a8ce4b02d98d102cfbc1c6b171c1f47facd366b38b03ac",
+      "size_bytes": 2927
+    }
+  ],
+  "hash_basis": "sha256 over canonical JSON (ensure_ascii=False, sort_keys=True, separators=(',', ':')) of hash_basis_payload; targets come from the primary code_draft_meta.targets, are normalized to repo-relative POSIX paths, sorted by path, and each file authenticates its bytes plus normalized git_mode (100755 iff the owner-execute bit is set, otherwise 100644)",
+  "hash_basis_payload": {
+    "algorithm": "sha256",
+    "files": [
+      {
+        "git_mode": "100644",
+        "path": "README.md",
+        "sha256": "209807ccccaa1bcea5bf9cccb39fcb29d38b5ee5c28ca7ea674dda7f7b37e0a4",
+        "size_bytes": 11430
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/playbooks/post_merge_audit.md",
+        "sha256": "86d60ff825fff1779ebd2009712db1c7ec4ee4982493d880a86790c9cc7fa34e",
+        "size_bytes": 44161
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/playbooks/review_merge_range.md",
+        "sha256": "9e23cafee3cb327112326c17b83173d18b332ffee31f495dba46f5c37d554b9b",
+        "size_bytes": 32203
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/playbooks/review_staged_or_commit.md",
+        "sha256": "ecb0ca241f09f41efffb06f201a456572266103528b3cc6fe1fd42bf379823d6",
+        "size_bytes": 13732
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/architect_status_driven.md",
+        "sha256": "e6cc9dd4fd98efbe2554d6daadf95dac456fdcf85d614752ac055d6775eb044d",
+        "size_bytes": 86020
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/coder_migrations_gate.md",
+        "sha256": "4929f889d53684405b41cd1a89f7e909272ce4dfb78f1f8c1fc2a14286c5dd79",
+        "size_bytes": 9780
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/coder_status_driven.md",
+        "sha256": "feff04b80e65f76aa09978bae6739e0e64c43a6e858df548fcdac801a49fc80e",
+        "size_bytes": 55944
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/planner_status_driven.md",
+        "sha256": "7f69d918ecfcf9c4a23aba2fc0efc4671bd3b5d066d0ff3d68b78ecce53304d7",
+        "size_bytes": 66865
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/reviewer_status_driven.md",
+        "sha256": "28182fc52d40feb5763c2c4811ebacd785069bf6f7878cac8e68f35ed9ba0dcc",
+        "size_bytes": 109634
+      },
+      {
+        "git_mode": "100644",
+        "path": "scripts/sql.py",
+        "sha256": "d27064fe88b1d44fb1f2b3273857db10dd4b5535fe18eb9fe060ecea41cb6e1e",
+        "size_bytes": 34367
+      },
+      {
+        "git_mode": "100644",
+        "path": "scripts/test_sql.py",
+        "sha256": "fa60f177b687ea7b878575c32a20f4ddd8203c6a0188ab8e767016fdb56a60c9",
+        "size_bytes": 61918
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/Northwind/Authored/GetReorderCandidates.sql",
+        "sha256": "09519216db27eddcee68fe2d933a7394c483d9b8a67eb5d61c8528532be55b38",
+        "size_bytes": 629
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/tests/GetReorderCandidatesTests/GetReorderCandidatesTests.sql",
+        "sha256": "f5960022bc96b8c4160a4db0c136fb413d0bcc814488b99a6147c9ea5f3bfce7",
+        "size_bytes": 206
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/tests/GetReorderCandidatesTests/test_T1_empty_Products_returns_empty_result.sql",
+        "sha256": "6e0199b23be4ceba2caa34d9f0e9b68d243667d51e4d7d94325e7151aeb7a921",
+        "size_bytes": 631
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/tests/GetReorderCandidatesTests/test_T2_active_shortage_is_returned.sql",
+        "sha256": "0cabbb12e0002f45d0669f5e68489369b6a32546f58de90f6806183f1fd6cf18",
+        "size_bytes": 928
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/tests/GetReorderCandidatesTests/test_T3_zero_and_negative_shortage_excluded.sql",
+        "sha256": "dbf35956457d5d6521b684797557f2a43dba0f369dc07316b2d2e6d613451ef1",
+        "size_bytes": 867
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/tests/GetReorderCandidatesTests/test_T4_on_order_units_cover_shortage.sql",
+        "sha256": "5aa411cdd0c8055dc78d208db450e84f9aac93639dde25f0e387da5af34821c2",
+        "size_bytes": 821
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/tests/GetReorderCandidatesTests/test_T5_discontinued_products_excluded.sql",
+        "sha256": "549594f4adf003c64cd6714d7df5e8284003f219993e8a970ad198ee255fe448",
+        "size_bytes": 826
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/tests/GetReorderCandidatesTests/test_T6_numeric_nulls_treated_as_zero.sql",
+        "sha256": "8b2b36d7da94aabb97c5850d404c52aefafeeb2716d5a4521eaeef761c6b7d59",
+        "size_bytes": 1293
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/tests/GetReorderCandidatesTests/test_T7_smallint_arithmetic_does_not_overflow.sql",
+        "sha256": "c0872f1f55aff60472c39745904194d8a8b418d141b8759e37b5ee0092ba4e87",
+        "size_bytes": 840
+      },
+      {
+        "git_mode": "100644",
+        "path": "sql/tests/GetReorderCandidatesTests/test_T8_result_metadata_and_ProductID_order.sql",
+        "sha256": "9f23be9f094135b0c3a8ce4b02d98d102cfbc1c6b171c1f47facd366b38b03ac",
+        "size_bytes": 2927
+      }
+    ],
+    "schema_version": "review_target_snapshot.hash_basis.v2"
+  },
+  "plan": "docs/plans/261012_0141_get_reorder_candidates.md",
+  "schema_version": "review_target_snapshot.v2",
+  "target": "BUNDLE=current bundle_sha256=1c38104d57f154501e43c19b40b70912a02095644e56332986fc3a4790a30759",
+  "target_paths": [
+    "README.md",
+    "docs/playbooks/post_merge_audit.md",
+    "docs/playbooks/review_merge_range.md",
+    "docs/playbooks/review_staged_or_commit.md",
+    "docs/tools/prompts/architect_status_driven.md",
+    "docs/tools/prompts/coder_migrations_gate.md",
+    "docs/tools/prompts/coder_status_driven.md",
+    "docs/tools/prompts/planner_status_driven.md",
+    "docs/tools/prompts/reviewer_status_driven.md",
+    "scripts/sql.py",
+    "scripts/test_sql.py",
+    "sql/Northwind/Authored/GetReorderCandidates.sql",
+    "sql/tests/GetReorderCandidatesTests/GetReorderCandidatesTests.sql",
+    "sql/tests/GetReorderCandidatesTests/test_T1_empty_Products_returns_empty_result.sql",
+    "sql/tests/GetReorderCandidatesTests/test_T2_active_shortage_is_returned.sql",
+    "sql/tests/GetReorderCandidatesTests/test_T3_zero_and_negative_shortage_excluded.sql",
+    "sql/tests/GetReorderCandidatesTests/test_T4_on_order_units_cover_shortage.sql",
+    "sql/tests/GetReorderCandidatesTests/test_T5_discontinued_products_excluded.sql",
+    "sql/tests/GetReorderCandidatesTests/test_T6_numeric_nulls_treated_as_zero.sql",
+    "sql/tests/GetReorderCandidatesTests/test_T7_smallint_arithmetic_does_not_overflow.sql",
+    "sql/tests/GetReorderCandidatesTests/test_T8_result_metadata_and_ProductID_order.sql"
+  ],
+  "target_snapshot": {
+    "bundle_sha256": "1c38104d57f154501e43c19b40b70912a02095644e56332986fc3a4790a30759",
+    "target": "BUNDLE=current"
+  }
+},
+  "metadata_source": "runner/model/effort/session_key подтверждены Manager из текущей native agents tool configuration; profile/SID не предоставлены",
+  "head": "87d5a543b562c4f1db4d0ae22f7c837cd068c760",
+  "source_inventory": [
+    "README.md",
+    "docs/playbooks/post_merge_audit.md",
+    "docs/playbooks/review_merge_range.md",
+    "docs/playbooks/review_staged_or_commit.md",
+    "docs/tools/prompts/architect_status_driven.md",
+    "docs/tools/prompts/coder_migrations_gate.md",
+    "docs/tools/prompts/coder_status_driven.md",
+    "docs/tools/prompts/planner_status_driven.md",
+    "docs/tools/prompts/reviewer_status_driven.md",
+    "scripts/sql.py",
+    "scripts/test_sql.py",
+    "sql/Northwind/Authored/GetReorderCandidates.sql",
+    "sql/tests/GetReorderCandidatesTests/GetReorderCandidatesTests.sql",
+    "sql/tests/GetReorderCandidatesTests/test_T1_empty_Products_returns_empty_result.sql",
+    "sql/tests/GetReorderCandidatesTests/test_T2_active_shortage_is_returned.sql",
+    "sql/tests/GetReorderCandidatesTests/test_T3_zero_and_negative_shortage_excluded.sql",
+    "sql/tests/GetReorderCandidatesTests/test_T4_on_order_units_cover_shortage.sql",
+    "sql/tests/GetReorderCandidatesTests/test_T5_discontinued_products_excluded.sql",
+    "sql/tests/GetReorderCandidatesTests/test_T6_numeric_nulls_treated_as_zero.sql",
+    "sql/tests/GetReorderCandidatesTests/test_T7_smallint_arithmetic_does_not_overflow.sql",
+    "sql/tests/GetReorderCandidatesTests/test_T8_result_metadata_and_ProductID_order.sql"
+  ],
+  "commands_run": [
+    {
+      "command": "make db-build",
+      "make_rc": 0,
+      "wrapper_rc": 0
+    },
+    {
+      "command": "make lint",
+      "make_rc": 0,
+      "wrapper_rc": 0
+    },
+    {
+      "command": "make test",
+      "make_rc": 0,
+      "wrapper_rc": 0,
+      "offline_tests": 67,
+      "failures": 0,
+      "errors": 0,
+      "proof_kind": "synthetic/offline"
+    },
+    {
+      "command": "make check-secrets",
+      "make_rc": 0,
+      "wrapper_rc": 0
+    },
+    {
+      "command": "make db-state",
+      "make_rc": 0,
+      "wrapper_rc": 0,
+      "proof_kind": "contextual-only",
+      "schemas": 3,
+      "objects": 171,
+      "test_classes": 2,
+      "last_results": 9,
+      "products_u": 1,
+      "success": 9,
+      "failure": 0,
+      "error": 0
+    }
+  ],
+  "launch_diagnostic": {
+    "command": "make db-build",
+    "launch": "login=true",
+    "make_rc": 2,
+    "wrapper_rc": 2,
+    "phase": "environment",
+    "reason": "python-or-platform",
+    "classification": "executor/launch harness drift; login shell выбрал Python 3.14.8 вместо уже подготовленного Python 3.12.14",
+    "resolution": "login=false сохраняет исходный prepared launch environment без изменения PATH/config/PYBIN",
+    "resolved": true
+  },
+  "hygiene": {
+    "tracked_command": "git diff HEAD --check -- <exact tracked targets>",
+    "tracked_rc": 0,
+    "new_targets_command": "rg -n '[[:blank:]]$|^(<<<<<<< |=======$|>>>>>>> )' -- <exact ten SQL targets>",
+    "new_targets_rc": 1,
+    "new_targets_matches": 0,
+    "index_delta": "empty"
+  },
+  "snapshot_continuity": {
+    "before_bundle_sha256": "1c38104d57f154501e43c19b40b70912a02095644e56332986fc3a4790a30759",
+    "after_bundle_sha256": "1c38104d57f154501e43c19b40b70912a02095644e56332986fc3a4790a30759",
+    "full_payload_equal": true,
+    "targets": 21
+  },
+  "external_sources": [
+    "https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-describe-first-result-set-for-object-transact-sql?view=sql-server-ver17",
+    "https://tsqlt.org/user-guide/assertions/assertequalstable/",
+    "https://tsqlt.org/user-guide/isolating-dependencies/faketable/"
+  ],
+  "read_assertions": [
+    "T1–T8 literal expected не повторяют формулу; T6 содержит семь NULL masks, T7 maximum smallint sum, T8 metadata/order самой процедуры.",
+    "Первичный canary и shared doc bodies byte-unchanged подтверждаются RepositoryContractTests в make test.",
+    "Exact inventory, permutations/known spellings, missing/unknown/duplicate/normalized alias, huge/padded/inconsistent counters и red XML покрыты JUnitParserTests/ProofTests.",
+    "Atomic fresh report, no old-green reuse после Publish/RunAll/formatter failure и секреты/таймауты покрыты офлайн fixtures; live adoption этих assertions отдельно не заявлено."
+  ]
+}

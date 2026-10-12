@@ -29,6 +29,19 @@ GIT_OVERRIDES = ('GIT_DIR', 'GIT_WORK_TREE', 'GIT_COMMON_DIR', 'GIT_INDEX_FILE')
 PROJECTS = ('sql/Northwind/Northwind.sqlproj', 'sql/tests/Northwind.Tests.sqlproj')
 CANARY_CLASS = 'StackAdaptationTests'
 CANARY_NAME = 'test Products table exists'
+EXPECTED_TESTS = {
+    'GetReorderCandidatesTests': (
+        'test T1 empty Products returns empty result',
+        'test T2 active shortage is returned',
+        'test T3 zero and negative shortage excluded',
+        'test T4 on order units cover shortage',
+        'test T5 discontinued products excluded',
+        'test T6 numeric nulls treated as zero',
+        'test T7 smallint arithmetic does not overflow',
+        'test T8 result metadata and ProductID order',
+    ),
+    CANARY_CLASS: (CANARY_NAME,),
+}
 CATEGORIES = {0: 'success', 1: 'test', 2: 'configuration', 3: 'target',
               4: 'connection', 5: 'build-or-lint', 6: 'publish'}
 SECURITY_DIRS = frozenset(('security', 'users', 'roles', 'permissions', 'logins',
@@ -170,54 +183,82 @@ def parse_junit(raw: str):
     if root.tag not in ('testsuite', 'testsuites'):
         refuse(1, 'junit', 'unsupported-root')
     suites = [root] if root.tag == 'testsuite' else list(root)
-    if len(suites) != 1 or suites[0].tag != 'testsuite':
+    if len(suites) != len(EXPECTED_TESTS) or any(s.tag != 'testsuite' for s in suites):
         refuse(1, 'junit', 'ambiguous-suite')
-    suite = suites[0]
-    if suite.get('name') not in (CANARY_CLASS, '[' + CANARY_CLASS + ']'):
-        refuse(1, 'junit', 'unexpected-suite')
-    cases = list(suite.findall('testcase'))
-    if len(cases) != 1 or len(list(root.iter('testcase'))) != 1:
-        refuse(1, 'junit', 'ambiguous-testcase')
-    case = cases[0]
-    accepted_names = {CANARY_NAME, '[' + CANARY_NAME + ']',
-                      CANARY_CLASS + '.' + CANARY_NAME,
-                      '[' + CANARY_CLASS + '].[' + CANARY_NAME + ']'}
-    if case.get('name') not in accepted_names or case.get('classname') not in (CANARY_CLASS, '[' + CANARY_CLASS + ']'):
-        refuse(1, 'junit', 'unexpected-testcase')
-    status_counts = [len(list(case.iter(tag))) for tag in ('failure', 'error', 'skipped')]
-    if any(n > 1 for n in status_counts) or sum(status_counts) > 1:
-        refuse(1, 'junit', 'duplicate-result')
-    expected = dict(zip(('tests', 'failures', 'errors', 'skipped'), [1] + status_counts))
-    for node in ([suite, root] if root is not suite else [suite]):
-        # Native tSQLt suite counters are required; root totals are optional.
-        required = ('tests', 'failures', 'errors', 'skipped') if node is suite else ()
+    counter_keys = ('tests', 'failures', 'errors', 'skipped')
+    result_tags = ('failure', 'error', 'skipped')
+    expected = dict.fromkeys(counter_keys, 0)
+    suite_results, case_results = {}, {}
+
+    def check_counts(node, counts, *, required):
         for key in expected:
             value = node.get(key)
             if value is None:
-                if key in required:
+                if required:
                     refuse(1, 'junit', 'missing-count')
                 continue
-            if not re.fullmatch(r'0|[1-9][0-9]*', value) or int(value) != expected[key]:
+            if value != str(counts[key]):
                 refuse(1, 'junit', 'inconsistent-count')
-    if any(n.tag not in ('testcase', 'properties', 'system-out', 'system-err') for n in suite):
-        refuse(1, 'junit', 'invalid-suite-layout')
-    if any(n.tag not in ('failure', 'error', 'skipped') for n in case):
-        refuse(1, 'junit', 'invalid-case-layout')
-    if len(list(root.iter('failure'))) + len(list(root.iter('error'))) + len(list(root.iter('skipped'))) != sum(status_counts):
-        refuse(1, 'junit', 'misplaced-result')
-    allowed = {'testsuites', 'testsuite', 'testcase', 'failure', 'error', 'skipped',
-               'properties', 'property', 'system-out', 'system-err'}
-    if any(n.tag not in allowed for n in root.iter()):
-        refuse(1, 'junit', 'unsupported-xml-element')
+
+    for suite in suites:
+        classes = [name for name in EXPECTED_TESTS
+                   if suite.get('name') in (name, '[' + name + ']')]
+        if len(classes) != 1:
+            refuse(1, 'junit', 'unexpected-suite')
+        classname = classes[0]
+        if classname in suite_results:
+            refuse(1, 'junit', 'ambiguous-suite')
+        counts = dict.fromkeys(counter_keys, 0)
+        for child in suite:
+            if child.tag == 'properties':
+                if any(p.tag != 'property' or len(p) for p in child):
+                    refuse(1, 'junit', 'invalid-suite-layout')
+                continue
+            if child.tag in ('system-out', 'system-err'):
+                if len(child):
+                    refuse(1, 'junit', 'misplaced-result')
+                continue
+            if child.tag != 'testcase':
+                refuse(1, 'junit', 'invalid-suite-layout')
+            if child.get('classname') not in (classname, '[' + classname + ']'):
+                refuse(1, 'junit', 'unexpected-testcase')
+            names = [name for name in EXPECTED_TESTS[classname] if child.get('name') in (
+                name, '[' + name + ']', classname + '.' + name,
+                '[' + classname + '].[' + name + ']')]
+            if len(names) != 1:
+                refuse(1, 'junit', 'unexpected-testcase')
+            identity = (classname, names[0])
+            if identity in case_results:
+                refuse(1, 'junit', 'ambiguous-testcase')
+            if len(child) > 1:
+                refuse(1, 'junit', 'duplicate-result')
+            if any(n.tag not in result_tags or len(n) for n in child):
+                refuse(1, 'junit', 'invalid-case-layout')
+            result = child[0].tag if len(child) else None
+            case_results[identity] = result
+            counts['tests'] += 1
+            for tag, key in zip(result_tags, counter_keys[1:]):
+                counts[key] += int(result == tag)
+        if counts['tests'] != len(EXPECTED_TESTS[classname]):
+            refuse(1, 'junit', 'ambiguous-testcase')
+        check_counts(suite, counts, required=True)
+        suite_results[classname] = counts
+        for key in counter_keys:
+            expected[key] += counts[key]
+    if set(case_results) != {(c, n) for c, names in EXPECTED_TESTS.items() for n in names}:
+        refuse(1, 'junit', 'ambiguous-testcase')
+    check_counts(root, expected, required=False)
     # Reconstruct only trusted semantic fields. No hostname, timings, properties,
     # paths, connection strings, raw messages or system streams survive.
     clean = ET.Element('testsuites', {k: str(v) for k, v in expected.items()})
-    clean_suite = ET.SubElement(clean, 'testsuite', name=CANARY_CLASS,
-                                **{k: str(v) for k, v in expected.items()})
-    clean_case = ET.SubElement(clean_suite, 'testcase', classname=CANARY_CLASS, name=CANARY_NAME)
-    for tag, n in zip(('failure', 'error', 'skipped'), status_counts):
-        if n:
-            ET.SubElement(clean_case, tag, message='SQL test ' + tag).text = 'Details redacted'
+    for classname, names in EXPECTED_TESTS.items():
+        clean_suite = ET.SubElement(clean, 'testsuite', name=classname,
+                                    **{k: str(v) for k, v in suite_results[classname].items()})
+        for name in names:
+            clean_case = ET.SubElement(clean_suite, 'testcase', classname=classname, name=name)
+            tag = case_results[(classname, name)]
+            if tag:
+                ET.SubElement(clean_case, tag, message='SQL test ' + tag).text = 'Details redacted'
     return ET.tostring(clean, encoding='utf-8', xml_declaration=True) + b'\n', expected
 
 
@@ -537,9 +578,11 @@ class Stack:
         if self.junit_path(value) != path:
             refuse(2, 'junit', 'path-changed')
         atomic_write(path, data)
-        if counts != {'tests': 1, 'failures': 0, 'errors': 0, 'skipped': 0}:
+        if counts != {'tests': sum(map(len, EXPECTED_TESTS.values())), 'failures': 0, 'errors': 0, 'skipped': 0}:
             refuse(1, 'junit', 'test-result-not-green')
-        print('JUnit tests=1 failures=0 errors=0 skipped=0; StackAdaptationTests.test Products table exists')
+        names = [case.get('classname') + '.' + case.get('name')
+                 for case in ET.fromstring(data).iter('testcase')]
+        print('JUnit ' + ' '.join(f'{key}={value}' for key, value in counts.items()) + '; ' + '; '.join(names))
 
     def state(self):
         self.config()

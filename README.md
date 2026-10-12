@@ -44,11 +44,19 @@ Ambient `GIT_DIR`, `GIT_WORK_TREE`, `GIT_COMMON_DIR`, `GIT_INDEX_FILE` (даже
 
 Основной проект — `sql/Northwind/Northwind.sqlproj`. `Imported/` получает только
 результат Extract, без ручной правки, разбора имён объектов или конкатенации.
-Авторский SQL живёт в `Authored/`; адаптация оставляет его пустым.
+Авторский SQL живёт в `Authored/`; при первичной адаптации он оставался пустым.
 Тестовый проект — `sql/tests/Northwind.Tests.sqlproj`; тесты — `sql/tests/<Class>/`.
 Единственный canary `StackAdaptationTests.[test Products table exists]` проверяет
 реальную `dbo.Products` типа U через OBJECT_ID, без FakeTable, NewTestClass и
 чтения бизнес-данных. Class/schema marker объявлен в SQL source.
+
+`dbo.GetReorderCandidates` без параметров возвращает активные товары с положительным
+`Shortage = ReorderLevel - (UnitsInStock + UnitsOnOrder)`. Числовые NULL считаются
+нулём; каждый операнд приводится к int до арифметики. Результат — `ProductID int`,
+`ProductName nvarchar(40)`, `Shortage int`, сортировка по `ProductID ASC`.
+Восемь `GetReorderCandidatesTests` используют FakeTable и синтетические данные;
+T8 отдельно проверяет метаданные результата и ORDER BY самой процедуры.
+Постоянный canary сохраняет проверку реальной таблицы без FakeTable.
 
 Extract читает только Northwind во temporary tree с ExtractTarget=SchemaObjectType,
 ExtractAllTableData=False, ExtractReferencedServerScopedElements=False,
@@ -94,14 +102,20 @@ SQL и Publish автоматически не повторяются.
 JUNIT обязателен: относительный .xml внутри проекта, без symlink leaf/ancestors.
 Tracked path или неизвестный Git — отказ до удаления/setup/build/SQL. Только
 достоверно untracked old XML удаляется до сборки. Strict parse отвергает
-malformed/truncated/DTD/entity/duplicate documents, wrong testcase и несогласованные
-счётчики. Очищенный XML атомарно записывается; failure/error/skipped сохраняют
+malformed/truncated/DTD/entity/duplicate documents, missing/unknown/duplicate testcase,
+несогласованные suite/classname и suite/root счётчики. Известные tSQLt bracketed
+имена нормализуются только по точному разрешённому составу; порядок suites/cases
+не является идентичностью. Очищенный XML атомарно записывается; failure/error/skipped сохраняют
 красный verdict. Старый XML, успешное сообщение и synthetic test не заменяют live proof.
 
 Coder и Reviewer последовательно создают разные JUnit в
-`docs/code_reviews/assets/<plan-stem>/`: `canary.junit.xml` и
-`canary.review.junit.xml`. Каждый текущий отчёт содержит единственный canary и
-counts tests=1/failures=0/errors=0/skipped=0. До/после proof нужны HEAD и
+`docs/code_reviews/assets/<plan-stem>/`: `<name>.junit.xml` и
+`<name>.review.junit.xml`. Каждый текущий отчёт содержит полный точный набор
+согласованного плана и обязательный real canary. Для текущей процедуры это
+восемь `GetReorderCandidatesTests` и один `StackAdaptationTests`:
+tests=9/failures=0/errors=0/skipped=0. Девять уникальных известных identities
+обязательны; зелёные totals при red testcase не принимаются. Исторические
+1/0/0/0 относятся только к завершению адаптации. До/после proof нужны HEAD и
 canonical bundle_sha256 штатного Planveyor snapshot, relative JUnit path/SHA-256,
 command и отдельные make/wrapper rc. Изменение target bytes требует нового proof.
 `db-state` показывает безопасные counts/Products-U/last-results, явные empty и
@@ -126,4 +140,4 @@ phase/category/rc/reason. Credentials, private paths и SQL streams в evidence
 
 Commit остаётся human_explicit: close preview не разрешает close --commit.
 CI, другие ОС/версии SQL Server, внешние модели/MCP, push и публикация вне объёма.
-GetReorderCandidates допускается отдельным поручением после sibling ready.
+Новые бизнес-задачи выполняются по отдельному прямому поручению после sibling ready.
