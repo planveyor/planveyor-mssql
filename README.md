@@ -5,6 +5,8 @@
 администратором dev-базе с database-level маркером `planveyor.designated_dev`.
 Сервер, базы, логины, CLR и маркер роли не создают и не меняют. Бизнес-данные и
 production вне объёма. Рабочий процесс Planveyor описан в [docs/README.md](docs/README.md).
+Проход от пустого sibling до двух закрытых планов, обновление движка, требования
+к серверу и к Codex описаны в [docs/tools/mssql_walkthrough.md](docs/tools/mssql_walkthrough.md).
 
 ## Среда и зависимости
 
@@ -138,6 +140,20 @@ phase/category/rc/reason. Credentials, private paths и SQL streams в evidence
 найденные значения. Missing prerequisites закрывают через owning role, без
 изменения сервера/прав и без неявного альтернативного инструмента.
 
-Commit остаётся human_explicit: close preview не разрешает close --commit.
+Автоматический commit запрещён. В ручном режиме в консоли (`human_explicit`)
+commit выполняет только `close --commit` с явного разрешения человека на
+показанный набор; close preview такого разрешения не даёт. В режиме TUI
+(`planveyor sibling tui`) семантический commit и, если он нужен, commit закрытия
+документов делает Architect в окне Manager (`native_existing`), только по прямому
+разрешению Owner для конкретного плана. Каждый запрос записи в `.git` одобряется
+разово; постоянных разрешений нет.
 CI, другие ОС/версии SQL Server, внешние модели/MCP, push и публикация вне объёма.
 Новые бизнес-задачи выполняются по отдельному прямому поручению после sibling ready.
+
+## Лицензия
+
+Репозиторий распространяется по лицензии Apache-2.0, см. [LICENSE](LICENSE).
+Схема Northwind в `sql/Northwind/Imported/` взята из примеров Microsoft SQL Server
+и распространяется по лицензии MIT, см.
+[third_party/northwind/LICENSE.txt](third_party/northwind/LICENSE.txt). Указания
+авторства, в том числе для стороннего кода, — в [NOTICE](NOTICE).

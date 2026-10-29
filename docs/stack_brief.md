@@ -170,9 +170,14 @@ Reviewer, каждый со своим JUnit; `make db-state` — Architect и R
 ## 10. Вне объёма
 
 **Ответ:** CI; другие ОС и версии SQL Server; production и бизнес-данные;
-подготовка сервера, баз, логинов, CLR и маркера; правка движка Planveyor/Genesis;
+подготовка сервера, баз, логинов, CLR и маркера; правка движка Planveyor;
 изменения `HOME`, trust, сети и моделей; внешние модели и MCP; push и публикация
 репозитория. SQL Publish в назначенную проверенную dev-базу входит в адаптацию.
-Reset/init/env-copy/model-install не повторяются. Автоматический commit запрещён;
-close preview не разрешает `close --commit`.
+Reset/init/env-copy/model-install не повторяются. Автоматический commit запрещён.
+В ручном режиме в консоли (`human_explicit`) commit выполняет только
+`close --commit` с явного разрешения человека на показанный набор; close preview
+такого разрешения не даёт. В режиме TUI (`planveyor sibling tui`) семантический
+commit и, если он нужен, commit закрытия документов делает Architect в окне
+Manager (`native_existing`), только по прямому разрешению Owner для конкретного
+плана; каждый запрос записи в `.git` одобряется разово, постоянных разрешений нет.
 `GetReorderCandidates` согласуется отдельным поручением после `sibling ready`.

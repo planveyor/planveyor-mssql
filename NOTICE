@@ -1,0 +1,13 @@
+planveyor-mssql
+Copyright 2026 palvaleri
+
+This repository was created from the Planveyor project template
+(https://github.com/planveyor/planveyor), licensed under the Apache
+License, Version 2.0. Files rendered from the template may contain
+local sections written for this repository.
+
+The Northwind schema in sql/Northwind/Imported/ is derived from the
+Northwind sample database script (instnwnd.sql) of Microsoft SQL Server
+Samples (https://github.com/microsoft/sql-server-samples),
+Copyright (c) Microsoft Corporation, licensed under the MIT License.
+See third_party/northwind/LICENSE.txt.
