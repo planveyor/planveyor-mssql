@@ -1007,6 +1007,41 @@ class DbStateTests(Fixture):
 
 
 class RepositoryContractTests(Fixture):
+    STACK_H2 = '## Локальные правила стека'.encode()
+    OVERRIDE_H2 = '## Разрешённое локальное переопределение процесса'.encode()
+    DISABLED_OVERRIDE = '- Переопределение: N/A (why=no local override)'.encode()
+
+    def local_contract_baselines(self):
+        for path in LOCAL_FILES:
+            yield path, subprocess.check_output(['git', '-C', str(sql.ROOT), 'show', 'HEAD:' + path])
+
+    def assert_local_contract(self, baseline, current, path):
+        def sections(data):
+            lines = data.splitlines(keepends=True)
+            positions = []
+            for heading in (self.STACK_H2, self.OVERRIDE_H2):
+                matches = [i for i, line in enumerate(lines)
+                           if line.removesuffix(b'\n').removesuffix(b'\r') == heading]
+                self.assertEqual(1, len(matches), path)
+                positions.append(matches[0])
+            self.assertLess(positions[0], positions[1], path)
+            return b''.join(lines[positions[0]:]), b''.join(lines[positions[1]:])
+
+        baseline_tail, _ = sections(baseline)
+        current_tail, override = sections(current)
+        self.assertEqual(baseline_tail, current_tail, path)
+        try:
+            local = current_tail.decode('utf-8')
+            override = override.decode('utf-8')
+        except UnicodeDecodeError:
+            self.fail('invalid UTF-8 local body: ' + path)
+        self.assertNotRegex(local, r'261011_1523|261012_0141|/Users/|PLANVEYOR_RUNTIME_ROOT')
+        self.assertIn('полный точный набор', local)
+        effective = re.sub(r'<!--.*?(?:-->|\Z)', '', override, flags=re.S)
+        override_rows = [line.strip() for line in effective.splitlines()
+                         if re.match(r'^\s*-\s*Переопределение\s*:', line)]
+        self.assertEqual([self.DISABLED_OVERRIDE.decode()], override_rows, path)
+
     def test_exact_pins_projects_lint_and_canary(self):
         root = sql.ROOT
         self.assertEqual({'version': '10.0.401', 'rollForward': 'latestFeature'}, json.loads((root / 'global.json').read_text())['sdk'])
@@ -1062,17 +1097,94 @@ class RepositoryContractTests(Fixture):
         self.assertNotRegex(authored, r'\b(?:INSERT|UPDATE|DELETE|MERGE|COMMIT|ROLLBACK)\b|SELECT\s+\*')
 
     def test_shared_bytes_and_no_process_override(self):
-        for p in LOCAL_FILES:
-            current = (sql.ROOT / p).read_bytes()
-            baseline = subprocess.check_output(['git', '-C', str(sql.ROOT), 'show', 'HEAD:' + p])
-            boundary = '## Локальные правила стека'.encode()
-            self.assertEqual(baseline.split(boundary)[0], current.split(boundary)[0], p)
-            local = current.split(boundary)[1].decode()
-            self.assertNotRegex(local, r'261011_1523|261012_0141|/Users/|PLANVEYOR_RUNTIME_ROOT')
-            self.assertIn('N/A (why=no local override)', local)
-            self.assertIn('полный точный набор', local)
-            override = '## Разрешённое локальное переопределение процесса'.encode()
-            self.assertEqual(baseline.split(override)[1], current.split(override)[1], p)
+        # Shared source integrity belongs to the separate pinned consumer doctor.
+        for path, baseline in self.local_contract_baselines():
+            with self.subTest(path=path):
+                self.assert_local_contract(baseline, (sql.ROOT / path).read_bytes(), path)
+
+    def test_local_contract_unchanged_and_shared_upgrade(self):
+        for path, baseline in self.local_contract_baselines():
+            for case, current in (('AC8-P0', baseline),
+                                  ('AC8-P1', b'Synthetic shared upgrade delta\n' + baseline)):
+                with self.subTest(case=case, path=path):
+                    self.assert_local_contract(baseline, current, path)
+
+    def test_local_contract_rejects_stack_and_override_body_mutations(self):
+        for path, baseline in self.local_contract_baselines():
+            for case, heading in (('AC8-N1', self.STACK_H2), ('AC8-N2', self.OVERRIDE_H2)):
+                current = baseline.replace(heading, heading + b'\n- Synthetic local mutation', 1)
+                with self.subTest(case=case, path=path), self.assertRaises(AssertionError):
+                    self.assert_local_contract(baseline, current, path)
+
+    def test_local_contract_rejects_missing_or_noncanonical_headings(self):
+        for path, baseline in self.local_contract_baselines():
+            for heading in (self.STACK_H2, self.OVERRIDE_H2):
+                for variant, replacement in (('missing', b''), ('inline', b'inline ' + heading),
+                                             ('partial', heading + b' incomplete')):
+                    malformed = baseline.replace(heading, replacement, 1)
+                    for side in ('baseline', 'current'):
+                        pair = (malformed, baseline) if side == 'baseline' else (baseline, malformed)
+                        with self.subTest(case='AC8-N3', path=path, heading=heading,
+                                          variant=variant, side=side), self.assertRaises(AssertionError):
+                            self.assert_local_contract(*pair, path)
+
+    def test_local_contract_rejects_duplicate_or_reversed_headings(self):
+        for path, baseline in self.local_contract_baselines():
+            malformed = [
+                ('duplicate-stack', baseline.replace(self.STACK_H2,
+                                                     self.STACK_H2 + b'\n' + self.STACK_H2, 1)),
+                ('duplicate-override', baseline.replace(self.OVERRIDE_H2,
+                                                        self.OVERRIDE_H2 + b'\n' + self.OVERRIDE_H2, 1)),
+                ('reversed', baseline.replace(self.OVERRIDE_H2, b'', 1).replace(
+                    self.STACK_H2, self.OVERRIDE_H2 + b'\n' + self.STACK_H2, 1)),
+            ]
+            for variant, bad in malformed:
+                for side in ('baseline', 'current'):
+                    pair = (bad, baseline) if side == 'baseline' else (baseline, bad)
+                    with self.subTest(case='AC8-N4', path=path, variant=variant,
+                                      side=side), self.assertRaises(AssertionError):
+                        self.assert_local_contract(*pair, path)
+
+    def test_local_contract_rejects_effective_override_even_with_equal_tails(self):
+        enabled = '- Переопределение: enabled'.encode()
+        variants = (
+            ('enabled-comment', enabled + b'\n<!-- N/A (why=no local override) -->'),
+            ('enabled-commented-row', enabled + b'\n<!--\n' + self.DISABLED_OVERRIDE + b'\n-->'),
+            ('comment-only', b'<!--\n' + self.DISABLED_OVERRIDE + b'\n-->'),
+            ('duplicate-disabled', self.DISABLED_OVERRIDE + b'\n' + self.DISABLED_OVERRIDE),
+        )
+        for path, baseline in self.local_contract_baselines():
+            for variant, replacement in variants:
+                bad = baseline.replace(self.DISABLED_OVERRIDE, replacement, 1)
+                for side, previous in (('current-only', baseline), ('equal-unsafe', bad)):
+                    with self.subTest(case='AC8-N5', path=path, variant=variant,
+                                      side=side), self.assertRaises(AssertionError):
+                        self.assert_local_contract(previous, bad, path)
+
+    def test_local_contract_rejects_forbidden_wording_even_with_equal_tails(self):
+        forbidden = (b'261011_1523', b'261012_0141', b'/Users/' + b'fixture/',
+                     b'PLANVEYOR_RUNTIME_ROOT')
+        for path, baseline in self.local_contract_baselines():
+            mutations = [(str(i), baseline.replace(self.STACK_H2,
+                          self.STACK_H2 + b'\n- ' + token, 1)) for i, token in enumerate(forbidden)]
+            mutations.append(('missing-inventory', baseline.replace('полный точный набор'.encode(),
+                                                                    'сокращённый набор'.encode())))
+            for variant, bad in mutations:
+                for side, previous in (('current-only', baseline), ('equal-unsafe', bad)):
+                    with self.subTest(case='AC8-N6', path=path, variant=variant,
+                                      side=side), self.assertRaises(AssertionError):
+                        self.assert_local_contract(previous, bad, path)
+
+    def test_local_contract_rejects_trailing_bytes_and_equal_invalid_utf8(self):
+        for path, baseline in self.local_contract_baselines():
+            for suffix in (b'X', b'\nTrailing local text\n'):
+                with self.subTest(case='AC8-N7', path=path, variant='trailing',
+                                  suffix=suffix), self.assertRaises(AssertionError):
+                    self.assert_local_contract(baseline, baseline + suffix, path)
+            bad = baseline.replace(self.STACK_H2, self.STACK_H2 + b'\n\xff', 1)
+            with self.subTest(case='AC8-N7', path=path,
+                              variant='equal-invalid-utf8'), self.assertRaises(AssertionError):
+                self.assert_local_contract(bad, bad, path)
 
     def test_secret_scan_tracked_untracked_and_explicit_xml(self):
         p = self.root / 'leak.txt'

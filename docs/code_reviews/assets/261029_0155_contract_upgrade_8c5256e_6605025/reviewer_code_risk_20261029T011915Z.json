@@ -1,0 +1,495 @@
+{
+  "run_id": "reviewer_code_risk:20261029T011915Z",
+  "lane_id": "reviewer_code_risk",
+  "runner_id": "unknown",
+  "session_key": "unknown",
+  "sid": "unknown",
+  "profile": "unknown",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "ultra",
+  "prompt_file": "docs/tools/prompts/reviewer_status_driven.md",
+  "target_ref": "BUNDLE=current",
+  "coverage_domains": [
+    "correctness",
+    "tests quality",
+    "security/privacy",
+    "subprocess/timeouts",
+    "races/locks/atomicity",
+    "data/migrations",
+    "performance",
+    "observability",
+    "integrations",
+    "supply chain",
+    "failure semantics"
+  ],
+  "findings": [],
+  "lane_status": "no_findings",
+  "no_findings_reason": "Общая assert_local_contract отделяет разрешённый shared prefix от полного byte-exact local tail; AC8-P0/P1/N1–N7 и equal-unsafe fixtures сохраняют independent guards. Собственные doctor, offline74/0/0, baseline parity и live SQL9/0/0/0 подтверждены на неизменном canonical bundle25.",
+  "limits": [
+    "Literal REVIEWER_RUNNER/REVIEWER_PROFILE, session_key и SID не переданы; unknown не выведен из имени task. Model/reasoning_effort взяты из configured runtime metadata readback.",
+    "Это только risk lane: final review/status/synthesis принадлежат reviewer_code_contracts; commit/Done/docs-ready не проверены и не заявлены.",
+    "SQL проверен только на назначенной dev-цели existing harness; db-state contextual-only, synthetic unittest XML не live proof."
+  ],
+  "written_at": "2026-10-29T01:19:15Z",
+  "current": true,
+  "source_refs": [
+    "scripts/test_sql.py:1010",
+    "scripts/test_sql.py:1100",
+    "scripts/sql.py:176",
+    "scripts/sql.py:546",
+    "docs/plans/261029_0155_contract_upgrade_8c5256e_6605025.md#Tests",
+    "docs/code_reviews/assets/261029_0155_contract_upgrade_8c5256e_6605025/upgrade.junit.xml",
+    "docs/code_reviews/assets/261029_0155_contract_upgrade_8c5256e_6605025/upgrade.review.junit.xml"
+  ],
+  "checks": {
+    "consumer_doctor": {
+      "rc": 0,
+      "state": "ok",
+      "managed_paths": 109,
+      "problems": [],
+      "source_commit": "66050258bcb5cf6a86fc539b6e28b39d77941841",
+      "runtime_commit": "66050258bcb5cf6a86fc539b6e28b39d77941841"
+    },
+    "plan_lint_rc": 0,
+    "doc_lint_rc": 0,
+    "scope_check": {
+      "rc": 0,
+      "scope_ok": true,
+      "completion": "planned",
+      "selected": "not_selected"
+    },
+    "baseline": {
+      "head": "9c445fd7d1f505ff761a3a2c1e86227fa1bad2f1",
+      "readme_equal": true,
+      "local_tails_equal": 8,
+      "production_sql_harness_equal": true
+    },
+    "make": {
+      "db_build": {
+        "make_rc": 0,
+        "wrapper_rc": 0
+      },
+      "lint": {
+        "make_rc": 0,
+        "wrapper_rc": 0
+      },
+      "test": {
+        "make_rc": 0,
+        "wrapper_rc": 0,
+        "tests": 74,
+        "failures": 0,
+        "errors": 0
+      },
+      "check_secrets": {
+        "make_rc": 0,
+        "wrapper_rc": 0
+      },
+      "db_state": {
+        "make_rc": 0,
+        "wrapper_rc": 0,
+        "schemas": 3,
+        "objects": 171,
+        "test_classes": 2,
+        "last_results": 9,
+        "products_u": 1,
+        "success": 9,
+        "failure": 0,
+        "error": 0,
+        "contextual_only": true
+      }
+    },
+    "git_diff_check_rc": 0,
+    "index_empty": true
+  },
+  "sql_proof": {
+    "role": "Reviewer",
+    "command": "PATH=\"$(dirname \"$(command -v python3.12)\"):$PATH\" make db-proof JUNIT=docs/code_reviews/assets/261029_0155_contract_upgrade_8c5256e_6605025/upgrade.review.junit.xml",
+    "make_rc": 0,
+    "wrapper_rc": 0,
+    "attempts": 1,
+    "head_before": "9c445fd7d1f505ff761a3a2c1e86227fa1bad2f1",
+    "head_after": "9c445fd7d1f505ff761a3a2c1e86227fa1bad2f1",
+    "bundle_sha256_before": "c32f3de4047762889db105f46c4f147f222f24c4317d41fdc3dec8b11675dfde",
+    "bundle_sha256_after": "c32f3de4047762889db105f46c4f147f222f24c4317d41fdc3dec8b11675dfde",
+    "snapshot_stdout_bytes_equal": true,
+    "junit": "docs/code_reviews/assets/261029_0155_contract_upgrade_8c5256e_6605025/upgrade.review.junit.xml",
+    "junit_sha256": "29499c0f69a403fdaef008c83e4028889041e2332b5f5eccc05a5b4bd0961d6f",
+    "coder_junit": "docs/code_reviews/assets/261029_0155_contract_upgrade_8c5256e_6605025/upgrade.junit.xml",
+    "coder_junit_sha256": "29499c0f69a403fdaef008c83e4028889041e2332b5f5eccc05a5b4bd0961d6f",
+    "root_counts": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suite_counts": {
+      "GetReorderCandidatesTests": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "StackAdaptationTests": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "identity_count": 9,
+    "identity_inventory": "scripts/sql.py::EXPECTED_TESTS; T1–T8 plus StackAdaptationTests.test Products table exists",
+    "junit_path_untracked_before": true,
+    "config_values_read_by_role": false,
+    "setup_repeated": false,
+    "sql_retried": false
+  },
+  "target_snapshot":
+{
+  "bundle_sha256": "c32f3de4047762889db105f46c4f147f222f24c4317d41fdc3dec8b11675dfde",
+  "code_draft": "docs/code_drafts/261029_0155_contract_upgrade_8c5256e_6605025__code_draft.md",
+  "files": [
+    {
+      "git_mode": "100644",
+      "path": ".agents/skills/planveyor-plan-draft/SKILL.md",
+      "sha256": "24d479702b69e6e08ace3dfe326134b7cb2f34cb354278d040147a5471f2c8c7",
+      "size_bytes": 12479
+    },
+    {
+      "git_mode": "100644",
+      "path": ".copier-answers.yml",
+      "sha256": "d7fc43d2fabbb2fbbdf1b5ef2b9d669c3c7f6e119e47bd48d148f11e4a9126f3",
+      "size_bytes": 105
+    },
+    {
+      "git_mode": "100644",
+      "path": "AGENTS.md",
+      "sha256": "8316a52cfe3dd734d92179cf00a24609a84a71bb54640c5205e3f1afba87bc29",
+      "size_bytes": 4894
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/_meta/planveyor_contract_authority.v1.json",
+      "sha256": "39b61b76208e243829c539eb71d3da166a9578732ab891b986c132e558bbf4ec",
+      "size_bytes": 243
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/adr/README.md",
+      "sha256": "a05034092dfcee87aed17ae9bc827584b0eefe13b99dbbd7db15a57891cc9152",
+      "size_bytes": 8424
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/code_drafts/_template.md",
+      "sha256": "6169198b8bbeb08f0744b973016ef3dde6edcc60450e334ed2771819fa239d7a",
+      "size_bytes": 21835
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/plans/README.md",
+      "sha256": "0f36905018a87c8ee0d89bcdd7ddc4a73bac02aebd9f516b19e754d7d3402b61",
+      "size_bytes": 225239
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/plans/_template.md",
+      "sha256": "e9cba9a994e9dad6a9dccab1793c3e154db75ca70e9da64ed7de97199ef47424",
+      "size_bytes": 62741
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/playbooks/review_docs_staged_or_commit.md",
+      "sha256": "63a0368aeddd9ad4d27d34b1681b2b33d289aedc616914aa7df115e9911ece44",
+      "size_bytes": 8542
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/playbooks/review_staged_or_commit.md",
+      "sha256": "0e7c6b6d4ad711b76e77c19b6c1117e46f9d3a31e7d173ec689d87eb51a44c64",
+      "size_bytes": 14092
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/roles/architect.md",
+      "sha256": "b84e778341cfa915087796aa6f18877469b00ef53ae4ccffc5081291d24d880c",
+      "size_bytes": 44794
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/roles/planner.md",
+      "sha256": "5c5cab2109d3b54d8ad008cea075f4139530b35b368c5bcc685558f9c2defadf",
+      "size_bytes": 32792
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/roles/reviewer.md",
+      "sha256": "2165203eaea66808f991a28e9826575f96299c6931fb385e20bff39a6c29ca66",
+      "size_bytes": 44196
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/architect_docs_finalize_general.md",
+      "sha256": "ffc486e2d435713d7559b4cd33f2b1a63ba28fb2bdb4b8554434b5a857412c28",
+      "size_bytes": 15465
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/architect_status_driven.md",
+      "sha256": "1fa546c0412ceba5a073df47178a11c06aa167bda749460dc2ce3057deb1d17a",
+      "size_bytes": 86291
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/architect_track_innovations.md",
+      "sha256": "82d67725bbe731cac7f987dd5e4ae2ccefa83b251f12aaec9b56abff4ca24113",
+      "size_bytes": 2021
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/architect_track_process_collab.md",
+      "sha256": "fa6f73ca604136770bce9951d424fe0b88b0c1df9701e05d2d473767cf1be288",
+      "size_bytes": 2384
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/architect_track_process_roles.md",
+      "sha256": "103cff0a34172022e229c618d9d4fc865cdaa4d1ba2e8a2cbef8b2a9569d4a1e",
+      "size_bytes": 3874
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/coder_docs_finalize_general.md",
+      "sha256": "d686e04d40bf6b7c1a2b1e4d2240d6379b1db4d273f80c4d546907a37941dbdd",
+      "size_bytes": 10686
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/manager_collab_pipeline.md",
+      "sha256": "d4b25212e9bc995c183f5580331da5f51b3a29685d05835c53efb7a301f722ee",
+      "size_bytes": 167095
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/planner_docs_finalize_general.md",
+      "sha256": "01316ef3739e7314d4e6feed783f1dec93a6ed52f810a3fd841ece003a47d9b9",
+      "size_bytes": 10464
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/planner_status_driven.md",
+      "sha256": "a87a3b8e339f74a806bef2ad24dbea3d4070bc1a08f8bec81f700e085713105f",
+      "size_bytes": 67028
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/reviewer_docs_finalize_general.md",
+      "sha256": "17555c2f6a19d9e8c1e454ccb2251a41d719d3e343ab23f5587f0b34a68f1982",
+      "size_bytes": 12128
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/reviewer_status_driven.md",
+      "sha256": "924e3ccf93fa7a7adccf00b9b7dd76e09ed29cdd76c6b34c5c355c092ee5ba95",
+      "size_bytes": 109831
+    },
+    {
+      "git_mode": "100644",
+      "path": "scripts/test_sql.py",
+      "sha256": "8e701b0564de373500936c7df2f25483305fe29942c0a0c34a2724aed60b97a6",
+      "size_bytes": 69009
+    }
+  ],
+  "hash_basis": "sha256 over canonical JSON (ensure_ascii=False, sort_keys=True, separators=(',', ':')) of hash_basis_payload; targets come from the primary code_draft_meta.targets, are normalized to repo-relative POSIX paths, sorted by path, and each file authenticates its bytes plus normalized git_mode (100755 iff the owner-execute bit is set, otherwise 100644)",
+  "hash_basis_payload": {
+    "algorithm": "sha256",
+    "files": [
+      {
+        "git_mode": "100644",
+        "path": ".agents/skills/planveyor-plan-draft/SKILL.md",
+        "sha256": "24d479702b69e6e08ace3dfe326134b7cb2f34cb354278d040147a5471f2c8c7",
+        "size_bytes": 12479
+      },
+      {
+        "git_mode": "100644",
+        "path": ".copier-answers.yml",
+        "sha256": "d7fc43d2fabbb2fbbdf1b5ef2b9d669c3c7f6e119e47bd48d148f11e4a9126f3",
+        "size_bytes": 105
+      },
+      {
+        "git_mode": "100644",
+        "path": "AGENTS.md",
+        "sha256": "8316a52cfe3dd734d92179cf00a24609a84a71bb54640c5205e3f1afba87bc29",
+        "size_bytes": 4894
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/_meta/planveyor_contract_authority.v1.json",
+        "sha256": "39b61b76208e243829c539eb71d3da166a9578732ab891b986c132e558bbf4ec",
+        "size_bytes": 243
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/adr/README.md",
+        "sha256": "a05034092dfcee87aed17ae9bc827584b0eefe13b99dbbd7db15a57891cc9152",
+        "size_bytes": 8424
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/code_drafts/_template.md",
+        "sha256": "6169198b8bbeb08f0744b973016ef3dde6edcc60450e334ed2771819fa239d7a",
+        "size_bytes": 21835
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/plans/README.md",
+        "sha256": "0f36905018a87c8ee0d89bcdd7ddc4a73bac02aebd9f516b19e754d7d3402b61",
+        "size_bytes": 225239
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/plans/_template.md",
+        "sha256": "e9cba9a994e9dad6a9dccab1793c3e154db75ca70e9da64ed7de97199ef47424",
+        "size_bytes": 62741
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/playbooks/review_docs_staged_or_commit.md",
+        "sha256": "63a0368aeddd9ad4d27d34b1681b2b33d289aedc616914aa7df115e9911ece44",
+        "size_bytes": 8542
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/playbooks/review_staged_or_commit.md",
+        "sha256": "0e7c6b6d4ad711b76e77c19b6c1117e46f9d3a31e7d173ec689d87eb51a44c64",
+        "size_bytes": 14092
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/roles/architect.md",
+        "sha256": "b84e778341cfa915087796aa6f18877469b00ef53ae4ccffc5081291d24d880c",
+        "size_bytes": 44794
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/roles/planner.md",
+        "sha256": "5c5cab2109d3b54d8ad008cea075f4139530b35b368c5bcc685558f9c2defadf",
+        "size_bytes": 32792
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/roles/reviewer.md",
+        "sha256": "2165203eaea66808f991a28e9826575f96299c6931fb385e20bff39a6c29ca66",
+        "size_bytes": 44196
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/architect_docs_finalize_general.md",
+        "sha256": "ffc486e2d435713d7559b4cd33f2b1a63ba28fb2bdb4b8554434b5a857412c28",
+        "size_bytes": 15465
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/architect_status_driven.md",
+        "sha256": "1fa546c0412ceba5a073df47178a11c06aa167bda749460dc2ce3057deb1d17a",
+        "size_bytes": 86291
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/architect_track_innovations.md",
+        "sha256": "82d67725bbe731cac7f987dd5e4ae2ccefa83b251f12aaec9b56abff4ca24113",
+        "size_bytes": 2021
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/architect_track_process_collab.md",
+        "sha256": "fa6f73ca604136770bce9951d424fe0b88b0c1df9701e05d2d473767cf1be288",
+        "size_bytes": 2384
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/architect_track_process_roles.md",
+        "sha256": "103cff0a34172022e229c618d9d4fc865cdaa4d1ba2e8a2cbef8b2a9569d4a1e",
+        "size_bytes": 3874
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/coder_docs_finalize_general.md",
+        "sha256": "d686e04d40bf6b7c1a2b1e4d2240d6379b1db4d273f80c4d546907a37941dbdd",
+        "size_bytes": 10686
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/manager_collab_pipeline.md",
+        "sha256": "d4b25212e9bc995c183f5580331da5f51b3a29685d05835c53efb7a301f722ee",
+        "size_bytes": 167095
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/planner_docs_finalize_general.md",
+        "sha256": "01316ef3739e7314d4e6feed783f1dec93a6ed52f810a3fd841ece003a47d9b9",
+        "size_bytes": 10464
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/planner_status_driven.md",
+        "sha256": "a87a3b8e339f74a806bef2ad24dbea3d4070bc1a08f8bec81f700e085713105f",
+        "size_bytes": 67028
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/reviewer_docs_finalize_general.md",
+        "sha256": "17555c2f6a19d9e8c1e454ccb2251a41d719d3e343ab23f5587f0b34a68f1982",
+        "size_bytes": 12128
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/reviewer_status_driven.md",
+        "sha256": "924e3ccf93fa7a7adccf00b9b7dd76e09ed29cdd76c6b34c5c355c092ee5ba95",
+        "size_bytes": 109831
+      },
+      {
+        "git_mode": "100644",
+        "path": "scripts/test_sql.py",
+        "sha256": "8e701b0564de373500936c7df2f25483305fe29942c0a0c34a2724aed60b97a6",
+        "size_bytes": 69009
+      }
+    ],
+    "schema_version": "review_target_snapshot.hash_basis.v2"
+  },
+  "plan": "docs/plans/261029_0155_contract_upgrade_8c5256e_6605025.md",
+  "schema_version": "review_target_snapshot.v2",
+  "target": "BUNDLE=current bundle_sha256=c32f3de4047762889db105f46c4f147f222f24c4317d41fdc3dec8b11675dfde",
+  "target_paths": [
+    ".agents/skills/planveyor-plan-draft/SKILL.md",
+    ".copier-answers.yml",
+    "AGENTS.md",
+    "docs/_meta/planveyor_contract_authority.v1.json",
+    "docs/adr/README.md",
+    "docs/code_drafts/_template.md",
+    "docs/plans/README.md",
+    "docs/plans/_template.md",
+    "docs/playbooks/review_docs_staged_or_commit.md",
+    "docs/playbooks/review_staged_or_commit.md",
+    "docs/roles/architect.md",
+    "docs/roles/planner.md",
+    "docs/roles/reviewer.md",
+    "docs/tools/prompts/architect_docs_finalize_general.md",
+    "docs/tools/prompts/architect_status_driven.md",
+    "docs/tools/prompts/architect_track_innovations.md",
+    "docs/tools/prompts/architect_track_process_collab.md",
+    "docs/tools/prompts/architect_track_process_roles.md",
+    "docs/tools/prompts/coder_docs_finalize_general.md",
+    "docs/tools/prompts/manager_collab_pipeline.md",
+    "docs/tools/prompts/planner_docs_finalize_general.md",
+    "docs/tools/prompts/planner_status_driven.md",
+    "docs/tools/prompts/reviewer_docs_finalize_general.md",
+    "docs/tools/prompts/reviewer_status_driven.md",
+    "scripts/test_sql.py"
+  ],
+  "target_snapshot": {
+    "bundle_sha256": "c32f3de4047762889db105f46c4f147f222f24c4317d41fdc3dec8b11675dfde",
+    "target": "BUNDLE=current"
+  }
+}
+
+}
