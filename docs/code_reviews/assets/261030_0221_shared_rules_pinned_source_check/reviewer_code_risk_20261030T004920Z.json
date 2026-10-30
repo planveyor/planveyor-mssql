@@ -1,0 +1,215 @@
+{
+  "run_id": "reviewer_code_risk:20261030T004920Z",
+  "lane_id": "reviewer_code_risk",
+  "runner_id": "unknown",
+  "session_key": "unknown",
+  "sid": "unknown",
+  "profile": "unknown",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "ultra",
+  "prompt_file": "docs/tools/prompts/reviewer_status_driven.md",
+  "target_ref": "BUNDLE=current",
+  "coverage_domains": [
+    "correctness",
+    "tests quality",
+    "security/privacy",
+    "subprocess/timeouts",
+    "races/locks/atomicity",
+    "data/migrations",
+    "performance",
+    "observability",
+    "integrations",
+    "supply chain",
+    "failure semantics"
+  ],
+  "findings": [],
+  "lane_status": "no_findings",
+  "no_findings_reason": "Восемь shared prefix читаются из точных Git blobs полного source_commit при равном runtime HEAD; local tails и прежние guards сохранены. Независимо прочитаны единый acquisition/comparison path, T2/source-worktree regressions и 52 real-make refusals; собственные offline87/0/0 и SQL9/0/0/0 прошли на неизменном canonical bundle. Doctor не сравнивает content и не является доказательством shared bytes.",
+  "limits": [
+    "Model/reasoning_effort — declared configuration agent_type=reviewer_code_risk, подтверждённая Manager из control plane, не измеренная session telemetry. REVIEWER_RUNNER/PROFILE/session_key/SID не переданы и остаются unknown; task suffix не источник.",
+    "Только risk lane: contracts synthesis, итоговый review artifact, status movement и strict final --check остаются reviewer_code_contracts; stage/commit/Done не выполнялись.",
+    "SQL proof относится только к назначенной dev-цели существующего harness; db-state contextual-only, XML от synthetic unittest не SQL acceptance. UI, migrations и production SQL/harness не меняются."
+  ],
+  "written_at": "2026-10-30T00:49:20Z",
+  "current": true,
+  "source_refs": [
+    "scripts/test_sql.py:1007",
+    "scripts/test_sql.py:1049",
+    "scripts/test_sql.py:1140",
+    "scripts/test_sql.py:1220",
+    "scripts/test_sql.py:1336",
+    "scripts/sql.py:546",
+    "scripts/sql.py:651",
+    "README.md:81",
+    "$PLANVEYOR_RUNTIME_ROOT/scripts/consumer_contract.py:369",
+    "$PLANVEYOR_RUNTIME_ROOT/scripts/consumer_contract.py:440",
+    "docs/code_reviews/261029_0155_contract_upgrade_8c5256e_6605025.md:47",
+    "docs/code_reviews/assets/261030_0221_shared_rules_pinned_source_check/coder.junit.xml",
+    "docs/code_reviews/assets/261030_0221_shared_rules_pinned_source_check/reviewer.junit.xml"
+  ],
+  "checks": {
+    "consumer_doctor": {
+      "rc": 0,
+      "state": "ok",
+      "source_commit": "66050258bcb5cf6a86fc539b6e28b39d77941841",
+      "runtime_commit": "66050258bcb5cf6a86fc539b6e28b39d77941841",
+      "content_equality_proof": false
+    },
+    "plan_lint_rc": 0,
+    "doc_lint_rc": 0,
+    "scope_check": {
+      "rc": 0,
+      "scope_ok": true,
+      "selected": "not_selected",
+      "review_completion": "planned"
+    },
+    "make": {
+      "db_build": {
+        "command": "make db-build",
+        "make_rc": 0,
+        "wrapper_rc": 0
+      },
+      "lint": {
+        "command": "make lint",
+        "make_rc": 0,
+        "wrapper_rc": 0
+      },
+      "test": {
+        "command": "PLAN_PATH::Commands runtime/doctor + make test shell block, one invocation",
+        "make_rc": 0,
+        "wrapper_rc": 0,
+        "tests": 87,
+        "failures": 0,
+        "errors": 0,
+        "real_make_negative_cases": 52
+      },
+      "check_secrets": {
+        "command": "make check-secrets",
+        "make_rc": 0,
+        "wrapper_rc": 0
+      },
+      "db_state": {
+        "command": "make db-state",
+        "make_rc": 0,
+        "wrapper_rc": 0,
+        "schemas": 3,
+        "objects": 171,
+        "test_classes": 2,
+        "last_results": 9,
+        "products_u": 1,
+        "success": 9,
+        "failure": 0,
+        "error": 0,
+        "contextual_only": true
+      }
+    },
+    "git_diff_check_rc": 0,
+    "index_empty": true,
+    "tracked_targets": [
+      "README.md",
+      "scripts/test_sql.py"
+    ],
+    "readme_numstat": {
+      "added": 1,
+      "deleted": 1
+    },
+    "protected_history_and_rules_unchanged": true
+  },
+  "sql_proof": {
+    "role": "Reviewer",
+    "command": "make db-proof JUNIT=docs/code_reviews/assets/261030_0221_shared_rules_pinned_source_check/reviewer.junit.xml",
+    "make_rc": 0,
+    "wrapper_rc": 0,
+    "attempts": 1,
+    "head_before": "ab9e44526a89f15d47dacfdcfa05476d9febe98f",
+    "head_after": "ab9e44526a89f15d47dacfdcfa05476d9febe98f",
+    "bundle_sha256_before": "01c2f077ed2e4145c701f4988b7f0886ff32d04fce9a6cba0babd336bd65799a",
+    "bundle_sha256_after": "01c2f077ed2e4145c701f4988b7f0886ff32d04fce9a6cba0babd336bd65799a",
+    "snapshot_stdout_bytes_equal": true,
+    "junit": "docs/code_reviews/assets/261030_0221_shared_rules_pinned_source_check/reviewer.junit.xml",
+    "junit_sha256": "29499c0f69a403fdaef008c83e4028889041e2332b5f5eccc05a5b4bd0961d6f",
+    "coder_junit": "docs/code_reviews/assets/261030_0221_shared_rules_pinned_source_check/coder.junit.xml",
+    "coder_junit_sha256": "29499c0f69a403fdaef008c83e4028889041e2332b5f5eccc05a5b4bd0961d6f",
+    "root_counts": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suite_counts": {
+      "GetReorderCandidatesTests": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "StackAdaptationTests": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "testcases": [
+      "GetReorderCandidatesTests.test T1 empty Products returns empty result",
+      "GetReorderCandidatesTests.test T2 active shortage is returned",
+      "GetReorderCandidatesTests.test T3 zero and negative shortage excluded",
+      "GetReorderCandidatesTests.test T4 on order units cover shortage",
+      "GetReorderCandidatesTests.test T5 discontinued products excluded",
+      "GetReorderCandidatesTests.test T6 numeric nulls treated as zero",
+      "GetReorderCandidatesTests.test T7 smallint arithmetic does not overflow",
+      "GetReorderCandidatesTests.test T8 result metadata and ProductID order",
+      "StackAdaptationTests.test Products table exists"
+    ],
+    "independent_invocation": true,
+    "setup_extract_or_sql_retry": false
+  },
+  "target_snapshot": {
+  "bundle_sha256": "01c2f077ed2e4145c701f4988b7f0886ff32d04fce9a6cba0babd336bd65799a",
+  "code_draft": "docs/code_drafts/261030_0221_shared_rules_pinned_source_check__code_draft.md",
+  "files": [
+    {
+      "git_mode": "100644",
+      "path": "README.md",
+      "sha256": "f6398401d7452e5fb5288f5e66def2ae88625b85a8070375807b40c694163987",
+      "size_bytes": 12968
+    },
+    {
+      "git_mode": "100644",
+      "path": "scripts/test_sql.py",
+      "sha256": "75eeb08c9df6e25bd170ab2116862d791217d14704c60a1c2975c2895b1b2ce5",
+      "size_bytes": 85507
+    }
+  ],
+  "hash_basis": "sha256 over canonical JSON (ensure_ascii=False, sort_keys=True, separators=(',', ':')) of hash_basis_payload; targets come from the primary code_draft_meta.targets, are normalized to repo-relative POSIX paths, sorted by path, and each file authenticates its bytes plus normalized git_mode (100755 iff the owner-execute bit is set, otherwise 100644)",
+  "hash_basis_payload": {
+    "algorithm": "sha256",
+    "files": [
+      {
+        "git_mode": "100644",
+        "path": "README.md",
+        "sha256": "f6398401d7452e5fb5288f5e66def2ae88625b85a8070375807b40c694163987",
+        "size_bytes": 12968
+      },
+      {
+        "git_mode": "100644",
+        "path": "scripts/test_sql.py",
+        "sha256": "75eeb08c9df6e25bd170ab2116862d791217d14704c60a1c2975c2895b1b2ce5",
+        "size_bytes": 85507
+      }
+    ],
+    "schema_version": "review_target_snapshot.hash_basis.v2"
+  },
+  "plan": "docs/plans/261030_0221_shared_rules_pinned_source_check.md",
+  "schema_version": "review_target_snapshot.v2",
+  "target": "BUNDLE=current bundle_sha256=01c2f077ed2e4145c701f4988b7f0886ff32d04fce9a6cba0babd336bd65799a",
+  "target_paths": [
+    "README.md",
+    "scripts/test_sql.py"
+  ],
+  "target_snapshot": {
+    "bundle_sha256": "01c2f077ed2e4145c701f4988b7f0886ff32d04fce9a6cba0babd336bd65799a",
+    "target": "BUNDLE=current"
+  }
+}
+}

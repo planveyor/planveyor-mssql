@@ -9,6 +9,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import time
 import unittest
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
@@ -1006,10 +1007,17 @@ class DbStateTests(Fixture):
         self.code(4, self.stack.state)
 
 
-class RepositoryContractTests(Fixture):
+class LocalContractAssertions:
     STACK_H2 = '## Локальные правила стека'.encode()
     OVERRIDE_H2 = '## Разрешённое локальное переопределение процесса'.encode()
     DISABLED_OVERRIDE = '- Переопределение: N/A (why=no local override)'.encode()
+
+    def heading_offset(self, data, heading, path):
+        lines = data.splitlines(keepends=True)
+        matches = [i for i, line in enumerate(lines)
+                   if line.removesuffix(b'\n').removesuffix(b'\r') == heading]
+        self.assertEqual(1, len(matches), path)
+        return sum(map(len, lines[:matches[0]]))
 
     def local_contract_baselines(self):
         for path in LOCAL_FILES:
@@ -1017,15 +1025,10 @@ class RepositoryContractTests(Fixture):
 
     def assert_local_contract(self, baseline, current, path):
         def sections(data):
-            lines = data.splitlines(keepends=True)
-            positions = []
-            for heading in (self.STACK_H2, self.OVERRIDE_H2):
-                matches = [i for i, line in enumerate(lines)
-                           if line.removesuffix(b'\n').removesuffix(b'\r') == heading]
-                self.assertEqual(1, len(matches), path)
-                positions.append(matches[0])
+            positions = [self.heading_offset(data, heading, path)
+                         for heading in (self.STACK_H2, self.OVERRIDE_H2)]
             self.assertLess(positions[0], positions[1], path)
-            return b''.join(lines[positions[0]:]), b''.join(lines[positions[1]:])
+            return data[positions[0]:], data[positions[1]:]
 
         baseline_tail, _ = sections(baseline)
         current_tail, override = sections(current)
@@ -1042,6 +1045,123 @@ class RepositoryContractTests(Fixture):
                          if re.match(r'^\s*-\s*Переопределение\s*:', line)]
         self.assertEqual([self.DISABLED_OVERRIDE.decode()], override_rows, path)
 
+
+class PinnedSourceContract:
+    """One read-only acquisition/comparison path for live gates and Git fixtures."""
+
+    def __init__(self, case, root=None, environ=None):
+        self.case = case
+        self.root = sql.ROOT if root is None else root
+        self.environ = os.environ if environ is None else environ
+
+    def git_bytes(self, root, *args):
+        try:
+            result = subprocess.run(['git', '-C', str(root), *args], env=self.environ,
+                                    capture_output=True, timeout=10, check=False)
+        except (OSError, subprocess.TimeoutExpired):
+            self.case.fail('read-only Git lookup unavailable')
+        self.case.assertEqual(0, result.returncode, 'read-only Git lookup refused')
+        return result.stdout
+
+    def configured_runtime(self):
+        value = self.environ.get('PLANVEYOR_RUNTIME_ROOT')
+        self.case.assertTrue(value, 'selected runtime required; no fallback')
+        return Path(value)
+
+    def available_runtime(self):
+        root = self.configured_runtime()
+        self.case.assertTrue(root.is_dir(), 'selected runtime directory required')
+        top = self.git_bytes(root, 'rev-parse', '--show-toplevel').decode().rstrip('\n')
+        self.case.assertEqual(root.resolve(), Path(top).resolve(), 'selected runtime must be a Git root')
+        return root
+
+    def source_pin(self):
+        try:
+            marker = json.loads((self.root / 'docs/_meta/planveyor_contract_authority.v1.json').read_bytes())
+        except (OSError, ValueError):
+            self.case.fail('source pin marker unavailable or invalid')
+        self.case.assertIsInstance(marker, dict)
+        pin = marker.get('source_commit')
+        self.case.assertIsInstance(pin, str)
+        self.case.assertRegex(pin, r'\A[0-9a-f]{40}\Z', 'full canonical source SHA required')
+        return pin
+
+    def pinned_commit(self):
+        root, pin = self.available_runtime(), self.source_pin()
+        self.case.assertEqual(b'commit\n', self.git_bytes(root, 'cat-file', '-t', pin),
+                              'source pin must name an existing commit')
+        return root, pin
+
+    def matching_runtime(self):
+        root, pin = self.pinned_commit()
+        self.case.assertEqual(pin.encode() + b'\n', self.git_bytes(root, 'rev-parse', '--verify', 'HEAD'),
+                              'selected runtime HEAD must equal full source pin')
+        return root, pin
+
+    def template_blobs(self):
+        root, pin = self.matching_runtime()
+        blobs = {}
+        for path in LOCAL_FILES:
+            ref = pin + ':copier_template/' + path
+            self.case.assertEqual(b'blob\n', self.git_bytes(root, 'cat-file', '-t', ref), path)
+            blobs[path] = self.git_bytes(root, 'cat-file', 'blob', ref)
+        return blobs
+
+    def source_prefixes(self):
+        return {path: data[:self.case.heading_offset(data, self.case.STACK_H2, path)]
+                for path, data in self.template_blobs().items()}
+
+    def assert_shared_bytes(self):
+        for path, expected in self.source_prefixes().items():
+            with self.case.subTest(path=path):
+                current = (self.root / path).read_bytes()
+                offset = self.case.heading_offset(current, self.case.STACK_H2, path)
+                self.case.assertEqual(expected, current[:offset], path)
+
+    def assert_local_tails(self):
+        for path in LOCAL_FILES:
+            with self.case.subTest(path=path):
+                baseline = self.git_bytes(self.root, 'show', 'HEAD:' + path)
+                self.case.assert_local_contract(baseline, (self.root / path).read_bytes(), path)
+
+    def assert_all(self):
+        self.assert_shared_bytes()
+        self.assert_local_tails()
+
+
+class PinnedSourceContractTests(LocalContractAssertions, unittest.TestCase):
+    def setUp(self):
+        self.contract = PinnedSourceContract(self)
+
+    def test_runtime_root_is_configured(self):
+        self.contract.configured_runtime()
+
+    def test_selected_runtime_is_available(self):
+        self.contract.available_runtime()
+
+    def test_source_pin_is_full_sha(self):
+        self.contract.source_pin()
+
+    def test_pinned_source_commit_exists(self):
+        self.contract.pinned_commit()
+
+    def test_runtime_head_matches_source_pin(self):
+        self.contract.matching_runtime()
+
+    def test_all_pinned_template_blobs_exist(self):
+        self.contract.template_blobs()
+
+    def test_pinned_source_boundaries_are_canonical(self):
+        self.contract.source_prefixes()
+
+    def test_pinned_shared_bytes_match(self):
+        self.contract.assert_shared_bytes()
+
+    def test_local_tails_match_head_and_guards(self):
+        self.contract.assert_local_tails()
+
+
+class RepositoryContractTests(LocalContractAssertions, Fixture):
     def test_exact_pins_projects_lint_and_canary(self):
         root = sql.ROOT
         self.assertEqual({'version': '10.0.401', 'rollForward': 'latestFeature'}, json.loads((root / 'global.json').read_text())['sdk'])
@@ -1097,17 +1217,16 @@ class RepositoryContractTests(Fixture):
         self.assertNotRegex(authored, r'\b(?:INSERT|UPDATE|DELETE|MERGE|COMMIT|ROLLBACK)\b|SELECT\s+\*')
 
     def test_shared_bytes_and_no_process_override(self):
-        # Shared source integrity belongs to the separate pinned consumer doctor.
+        # Doctor checks selection/pin/presence/merge, not shared content equality.
+        # PinnedSourceContractTests enforce pinned Git-blob bytes separately.
         for path, baseline in self.local_contract_baselines():
             with self.subTest(path=path):
                 self.assert_local_contract(baseline, (sql.ROOT / path).read_bytes(), path)
 
-    def test_local_contract_unchanged_and_shared_upgrade(self):
+    def test_local_contract_unchanged(self):
         for path, baseline in self.local_contract_baselines():
-            for case, current in (('AC8-P0', baseline),
-                                  ('AC8-P1', b'Synthetic shared upgrade delta\n' + baseline)):
-                with self.subTest(case=case, path=path):
-                    self.assert_local_contract(baseline, current, path)
+            with self.subTest(path=path):
+                self.assert_local_contract(baseline, baseline, path)
 
     def test_local_contract_rejects_stack_and_override_body_mutations(self):
         for path, baseline in self.local_contract_baselines():
@@ -1212,6 +1331,205 @@ class RepositoryContractTests(Fixture):
             text = (sql.ROOT / p).read_text()
             self.assertNotIn('PLANVEYOR_' + 'PATH_TRACKING_STUB', text)
             self.assertNotIn('Path-tracking' + ' stub;', text)
+
+
+class PinnedSourceRegressionTests(LocalContractAssertions, unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.fixture_root = Path(temporary.name).resolve()
+        self.runtime = self.fixture_root / 'runtime'
+        self.sibling = self.fixture_root / 'sibling'
+        for root in (self.runtime, self.sibling):
+            root.mkdir()
+            self.fixture_git(root, 'init', '-q')
+        self.tail = (self.STACK_H2 + '\n\n- полный точный набор fixture checks.\n\n'.encode()
+                     + self.OVERRIDE_H2 + b'\n\n' + self.DISABLED_OVERRIDE + b'\n')
+        self.versions = {version: {path: ('Shared version ' + str(version) + ': ' + path + '\n\n').encode()
+                                  + self.tail for path in LOCAL_FILES} for version in (1, 2)}
+        self.write_rules(self.runtime / 'copier_template', self.versions[1])
+        self.old_pin = self.fixture_commit(self.runtime, ['copier_template/' + p for p in LOCAL_FILES])
+        self.write_rules(self.runtime / 'copier_template', self.versions[2])
+        self.pin = self.fixture_commit(self.runtime, ['copier_template/' + p for p in LOCAL_FILES])
+        self.write_rules(self.sibling, self.versions[1])
+        self.write_pin(self.old_pin)
+        self.sibling_head = self.fixture_commit(self.sibling, [*LOCAL_FILES,
+            'docs/_meta/planveyor_contract_authority.v1.json'])
+        scripts = self.sibling / 'scripts'
+        scripts.mkdir()
+        for name in ('sql.py', 'test_sql.py'):
+            target = 'pinned_source_candidate.py' if name == 'test_sql.py' else name
+            (scripts / target).write_bytes((sql.ROOT / 'scripts' / name).read_bytes())
+        (scripts / 'test_sql.py').write_text('from pinned_source_candidate import PinnedSourceContractTests\n')
+        (self.sibling / 'Makefile').write_bytes((sql.ROOT / 'Makefile').read_bytes())
+        self.clean_fixture()
+
+    def fixture_git(self, root, *args):
+        return subprocess.run(['git', '-C', str(root), *args], check=True,
+                              capture_output=True, timeout=10).stdout
+
+    def fixture_commit(self, root, paths):
+        self.fixture_git(root, 'add', '--', *paths)
+        self.fixture_git(root, '-c', 'user.name=Pinned Source Fixture', '-c',
+                         'user.email=pinned-source@example.invalid', '-c', 'commit.gpgsign=false',
+                         '-c', 'core.hooksPath=/dev/null', 'commit', '-q', '-m', 'Synthetic contract fixture')
+        return self.fixture_git(root, 'rev-parse', 'HEAD').decode().strip()
+
+    def write_rules(self, root, contents):
+        for path, data in contents.items():
+            target = root / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
+
+    def write_pin(self, pin):
+        marker = self.sibling / 'docs/_meta/planveyor_contract_authority.v1.json'
+        marker.parent.mkdir(parents=True, exist_ok=True)
+        marker.write_text(json.dumps({'source_commit': pin}) + '\n')
+
+    def clean_fixture(self):
+        # Restore only these owned disposable roots, never a real checkout/index.
+        self.fixture_git(self.runtime, 'update-ref', 'HEAD', self.pin)
+        self.write_rules(self.runtime / 'copier_template', self.versions[2])
+        self.write_rules(self.sibling, self.versions[2])
+        self.write_pin(self.pin)
+
+    def fixture_environment(self):
+        return {**os.environ, 'PLANVEYOR_RUNTIME_ROOT': str(self.runtime)}
+
+    def fixture_contract(self):
+        return PinnedSourceContract(self, self.sibling, self.fixture_environment())
+
+    def fixture_make(self, expected=None, environ=None, deadline=None):
+        remaining = 30 if deadline is None else deadline - time.monotonic()
+        self.assertGreater(remaining, 0, 'operational matrix exceeded 180s budget')
+        try:
+            result = subprocess.run(['make', 'test'], cwd=self.sibling,
+                                    env=self.fixture_environment() if environ is None else environ,
+                                    capture_output=True, text=True, timeout=min(30, remaining))
+        except subprocess.TimeoutExpired:
+            self.fail('fixture make exceeded child timeout or operational matrix budget')
+        output = result.stdout + result.stderr
+        summaries = re.findall(r'^offline tests=(\d+) failures=(\d+) errors=(\d+)$', output, re.M)
+        self.assertEqual(1, len(summaries), output)
+        tests, failures, errors = map(int, summaries[0])
+        self.assertEqual(9, tests, output)
+        failed = re.findall(r'^offline failed=(.+)$', output, re.M)
+        if expected is None:
+            self.assertEqual(0, result.returncode, output)
+            self.assertEqual((0, 0), (failures, errors), output)
+            self.assertEqual([], failed, output)
+            self.assertIn('sql phase=test category=success rc=0', output)
+        else:
+            self.assertNotEqual(0, result.returncode, output)
+            self.assertGreater(failures + errors, 0, output)
+            self.assertIn('sql phase=test category=test rc=1', output)
+            full_id = 'pinned_source_candidate.PinnedSourceContractTests.' + expected
+            self.assertTrue(any(value == full_id or value.startswith(full_id + ' (') for value in failed),
+                            'missing designated full failed ID: ' + full_id + '\n' + output)
+        if deadline is not None:
+            self.assertLessEqual(time.monotonic(), deadline, 'operational matrix exceeded 180s budget')
+
+    def test_current_pinned_source_contract(self):
+        # T1 uses the current sibling and selected runtime, not synthetic expected bytes.
+        PinnedSourceContract(self).assert_all()
+
+    def test_uncommitted_upgrade_uses_new_pin_and_old_local_head(self):
+        self.assertNotEqual(self.old_pin, self.pin)
+        for path in LOCAL_FILES:
+            with self.subTest(path=path):
+                old = self.fixture_git(self.sibling, 'show', 'HEAD:' + path)
+                current = (self.sibling / path).read_bytes()
+                source = self.fixture_git(self.runtime, 'cat-file', 'blob', self.pin + ':copier_template/' + path)
+                old_offset = self.heading_offset(old, self.STACK_H2, path)
+                current_offset = self.heading_offset(current, self.STACK_H2, path)
+                source_offset = self.heading_offset(source, self.STACK_H2, path)
+                self.assertNotEqual(old[:old_offset], current[:current_offset])
+                self.assertEqual(source[:source_offset], current[:current_offset])
+                self.assertEqual(old[old_offset:], current[current_offset:])
+        self.fixture_contract().assert_all()
+        self.fixture_make()
+        self.assertEqual(self.sibling_head.encode() + b'\n', self.fixture_git(self.sibling, 'rev-parse', 'HEAD'))
+
+    def test_pinned_blob_ignores_runtime_worktree_mutation(self):
+        for path in LOCAL_FILES:
+            changed = b'Uncommitted runtime worktree corruption\n' + self.tail
+            (self.runtime / 'copier_template' / path).write_bytes(changed)
+            source = self.fixture_git(self.runtime, 'cat-file', 'blob', self.pin + ':copier_template/' + path)
+            self.assertNotEqual(source, changed)
+            self.assertEqual(self.versions[2][path], source)
+        self.fixture_contract().assert_all()
+        self.fixture_make()
+        self.assertEqual(self.pin.encode() + b'\n', self.fixture_git(self.runtime, 'rev-parse', 'HEAD'))
+
+    def test_make_failure_ids_cover_source_and_local_refusals(self):
+        deadline = time.monotonic() + 180
+        cases = 0
+        for path in LOCAL_FILES:
+            for variant, prefix in (('deleted', b''), ('replaced', b'Tampered shared prefix\n')):
+                with self.subTest(path=path, variant=variant):
+                    self.clean_fixture()
+                    (self.sibling / path).write_bytes(prefix + self.tail)
+                    self.fixture_make('test_pinned_shared_bytes_match', deadline=deadline)
+                    cases += 1
+            for variant in ('body', 'override', 'EOF'):
+                with self.subTest(path=path, variant=variant):
+                    self.clean_fixture()
+                    data = self.versions[2][path]
+                    if variant == 'body':
+                        data = data.replace(self.STACK_H2, self.STACK_H2 + b'\n- Changed local body', 1)
+                    elif variant == 'override':
+                        data = data.replace(self.DISABLED_OVERRIDE, '- Переопределение: enabled'.encode(), 1)
+                    else:
+                        data += b'Trailing local bytes\n'
+                    (self.sibling / path).write_bytes(data)
+                    self.fixture_make('test_local_tails_match_head_and_guards', deadline=deadline)
+                    cases += 1
+        refusals = (
+            ('unset-runtime', 'test_runtime_root_is_configured'),
+            ('empty-runtime', 'test_runtime_root_is_configured'),
+            ('missing-runtime', 'test_selected_runtime_is_available'),
+            ('non-git-runtime', 'test_selected_runtime_is_available'),
+            ('short-pin', 'test_source_pin_is_full_sha'),
+            ('nonhex-pin', 'test_source_pin_is_full_sha'),
+            ('missing-commit', 'test_pinned_source_commit_exists'),
+            ('other-existing-commit', 'test_runtime_head_matches_source_pin'),
+            ('missing-blob', 'test_all_pinned_template_blobs_exist'),
+            ('missing-source-boundary', 'test_pinned_source_boundaries_are_canonical'),
+            ('duplicate-source-boundary', 'test_pinned_source_boundaries_are_canonical'),
+            ('trailing-space-pin', 'test_source_pin_is_full_sha'),
+        )
+        for variant, expected in refusals:
+            with self.subTest(variant=variant):
+                self.clean_fixture()
+                env = self.fixture_environment()
+                if variant == 'unset-runtime':
+                    del env['PLANVEYOR_RUNTIME_ROOT']
+                elif variant == 'empty-runtime':
+                    env['PLANVEYOR_RUNTIME_ROOT'] = ''
+                elif variant == 'missing-runtime':
+                    env['PLANVEYOR_RUNTIME_ROOT'] = str(self.fixture_root / 'absent-runtime')
+                elif variant == 'non-git-runtime':
+                    directory = self.fixture_root / 'non-git-runtime'
+                    directory.mkdir()
+                    env['PLANVEYOR_RUNTIME_ROOT'] = str(directory)
+                elif variant in ('short-pin', 'nonhex-pin', 'missing-commit',
+                                 'other-existing-commit', 'trailing-space-pin'):
+                    self.write_pin({'short-pin': self.pin[:7], 'nonhex-pin': 'z' * 40,
+                                    'missing-commit': '0' * 40, 'other-existing-commit': self.old_pin,
+                                    'trailing-space-pin': self.pin + ' '}[variant])
+                else:
+                    path = self.runtime / 'copier_template' / LOCAL_FILES[0]
+                    if variant == 'missing-blob':
+                        path.unlink()
+                    elif variant == 'missing-source-boundary':
+                        path.write_bytes(self.versions[2][LOCAL_FILES[0]].replace(self.STACK_H2, b'Missing H2', 1))
+                    else:
+                        path.write_bytes(self.versions[2][LOCAL_FILES[0]].replace(
+                            self.STACK_H2, self.STACK_H2 + b'\n' + self.STACK_H2, 1))
+                    self.write_pin(self.fixture_commit(self.runtime, ['copier_template/' + LOCAL_FILES[0]]))
+                self.fixture_make(expected, environ=env, deadline=deadline)
+                cases += 1
+        self.assertEqual(52, cases)
 
 
 if __name__ == '__main__':

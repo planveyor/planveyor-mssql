@@ -78,7 +78,7 @@ Residual CREATE USER, ALTER ROLE, GRANT, INSERT, unsafe file types или mismat
 | `make db-extract` | Readonly schema Extract из Northwind | Coder, live |
 | `make db-build` | Сборка двух SQL projects, no-restore | Coder/Reviewer, offline |
 | `make lint` | SQLFluff только Authored и tests | Coder/Reviewer, offline |
-| `make test` | Synthetic unittest fixtures без SQL/config/cache | Coder/Reviewer, offline |
+| `make test` | Pinned source и synthetic unittest fixtures; выбранный `PLANVEYOR_RUNTIME_ROOT` обязателен, без SQL/config/cache | Coder/Reviewer, offline |
 | `make check-secrets` | Git-known/untracked nonignored и JUnit scan | Coder/Reviewer, offline |
 | `make db-proof JUNIT=<relative.xml>` | Build, fresh guard, Publish, RunAll, JUnit | Coder, затем Reviewer, live |
 | `make db-state` | Schema/object/class/last-result readback | Architect/Reviewer, readonly live |
