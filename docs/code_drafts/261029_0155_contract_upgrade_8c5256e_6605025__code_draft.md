@@ -129,7 +129,7 @@
 
 - Source plan provenance: `docs/plans/261029_0155_contract_upgrade_8c5256e_6605025.md#Plan-provenance--session-context`; draft создан отдельно в текущей Planner-сессии.
 - Relation: `created-here`
-- Thread ID: `01a184cc-54ee-7123-9ad9-e1055639edc6`
+- Thread ID: `<REDACTED>`
 - Parent thread ID: `N/A (why=not exposed by env, wrapper receipts, or session stats)`
 - Session SID: `N/A (why=.planveyor.session.planner is missing or empty)`
 - Launch surface: `unknown (why=no env, wrapper receipt, or session stats origin identified the launch surface)`

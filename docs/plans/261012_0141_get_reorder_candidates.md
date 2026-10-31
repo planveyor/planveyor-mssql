@@ -68,9 +68,9 @@
 
 ## Plan provenance / session context
 - Relation: `created-here`
-- Thread ID: `01a11cb4-1805-7ca2-82fa-d0f9df8f32d2`
+- Thread ID: `<REDACTED>`
 - Parent thread ID: `N/A (why=not exposed by env, wrapper receipts, or session stats)`
-- Session SID: `01a11cb4-1805-7ca2-82fa-d0f9df8f32d2`
+- Session SID: `<REDACTED>`
 - Launch surface: `codex-desktop`
 - Captured from: `env`
 - Captured at: `2026-10-11T22:43:25Z`

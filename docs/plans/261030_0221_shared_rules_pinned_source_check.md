@@ -63,7 +63,7 @@
 ## Plan provenance / session context
 
 - Relation: `created-here`
-- Thread ID: `01a189f5-8893-7bc3-99ce-ba1189b59b29`
+- Thread ID: `<REDACTED>`
 - Parent thread ID: `N/A (why=not exposed by env, wrapper receipts, or session stats)`
 - Session SID: `N/A (why=.planveyor.session.architect is missing or empty)`
 - Launch surface: `unknown (why=no env, wrapper receipt, or session stats origin identified the launch surface)`
