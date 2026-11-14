@@ -8,7 +8,7 @@
 
 **Context links (source of truth):**
 - Source plan: `docs/plans/<YYMMDD_HHMM>_<topic>.md`
-- Related source documentation/code drafts: `docs/code_drafts/...` / `docs/reviews/...` / `N/A`
+- Related source docs/code drafts: `docs/code_drafts/...` / `docs/reviews/...` / `N/A`
 - Target import receipt: same path as target local plan by default (`docs/plans/...`) или `N/A (why=not imported yet)`
 - Target local plan: same path as target import receipt by default (`docs/plans/...`) или `N/A (why=not imported yet)`
 

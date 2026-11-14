@@ -8,10 +8,12 @@
 
 **Context links (source of truth):**
 - Origin plan: `docs/plans/<origin-plan>.md`
-- Trigger ref: `docs/plans/<origin-plan>.md#...`, `docs/code_reviews/<review>.md#...` or `docs/process_improvements/<file>.md#PI-NNN`
+- Trigger ref: `docs/plans/<origin-plan>.md#...`
 - Source import plan: `N/A (why=not imported yet)`
 - Source decision ref: `N/A (why=not decided yet)`
 - Source execution ref: `N/A (why=not executed yet)`
+
+Trigger ref accepts a plan anchor, a code review anchor, or a process-improvement item ID.
 
 Upstream request packet = target-originated evidence handoff into `planveyor`.
 It is not an execution plan, not a queue item, and not permission for `planveyor` to write sibling repo files.
