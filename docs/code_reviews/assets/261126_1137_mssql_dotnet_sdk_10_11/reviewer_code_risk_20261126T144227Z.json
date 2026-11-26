@@ -1,0 +1,331 @@
+{
+  "run_id": "reviewer_code_risk-20261126T144227Z",
+  "lane_id": "reviewer_code_risk",
+  "runner_id": "codex",
+  "session_key": "reviewer_code_risk",
+  "sid": "N/A (why=native collab SID не предоставлен; private identity не собиралась)",
+  "profile": "native-collab",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "ultra",
+  "prompt_file": "docs/tools/prompts/reviewer_status_driven.md",
+  "target_ref": "BUNDLE=current",
+  "coverage_domains": [
+    "correctness",
+    "tests quality",
+    "security/privacy",
+    "subprocess/timeouts",
+    "races/locks/atomicity",
+    "data/migrations",
+    "observability",
+    "integrations",
+    "supply chain",
+    "failure semantics"
+  ],
+  "findings": [],
+  "lane_status": "no_findings",
+  "no_findings_reason": "Статический risk review exact12 target bytes не выявил исправимых дефектов. Stable SDK 10/11 allowlist, real-resolver/negative receipts, точный bridge восьми local tails и оба callers согласованы; SQL/path/Git/JUnit guards и pinned dependencies не изменены. Передача Coder proof → preparation03 подтверждена фактическими XML, sealed receipts, логами и current artifact hashes.",
+  "limits": [
+    "Только статическое чтение и required risk evidence/support writes; make/offline/SDK diagnostics/setup/Extract/SQL в этой lane не запускались.",
+    "Независимые Reviewer SDK11 offline checks и одна A6 db-proof attempt не выполнены; AC3/AC4/AC5 остаются pending. Эта запись не является Reviewer runtime green или final review verdict.",
+    "Retained Coder runtime results проверены по repo-backed receipts/log hashes/XML. Current cache/launcher/DACPAC проверены по bytes без запуска; fresh runtime/target preflight принадлежит contracts/finalizer перед его commands.",
+    "Guard прохождение Coder связывается с unchanged source ordering и успешным Coder wrapper receipt; независимый live guard Reviewer ещё не исполнялся.",
+    "Credential values и содержимое private config/input file не читались и не публиковались; private paths из local receipts не выводились.",
+    "Риск lane не меняет top-level status/AC, не создаёт final review artifact, не синтезирует contracts verdict; stage/commit/push не выполнялись."
+  ],
+  "written_at": "2026-11-26T14:42:27Z",
+  "current": true,
+  "source_refs": [
+    "docs/plans/261126_1137_mssql_dotnet_sdk_10_11.md",
+    "docs/code_drafts/261126_1137_mssql_dotnet_sdk_10_11__code_draft.md",
+    "README.md",
+    "docs/playbooks/post_merge_audit.md",
+    "docs/playbooks/review_merge_range.md",
+    "docs/playbooks/review_staged_or_commit.md",
+    "docs/tools/prompts/architect_status_driven.md",
+    "docs/tools/prompts/coder_migrations_gate.md",
+    "docs/tools/prompts/coder_status_driven.md",
+    "docs/tools/prompts/planner_status_driven.md",
+    "docs/tools/prompts/reviewer_status_driven.md",
+    "global.json",
+    "scripts/sql.py",
+    "scripts/test_sql.py",
+    "Makefile",
+    "docs/code_reviews/assets/261126_1137_mssql_dotnet_sdk_10_11/sdk10.coder.junit.xml",
+    ".tmp/sdk-compat-261126/20261126T134714Z/receipts/coder-sdk10-offline.json",
+    ".tmp/sdk-compat-261126/20261126T134714Z/receipts/coder-sdk11-offline.json",
+    ".tmp/sdk-compat-261126/20261126T134714Z/receipts/resolver.json",
+    ".tmp/sdk-compat-261126/20261126T134714Z/receipts/runtime-negative.json",
+    ".tmp/sdk-compat-261126/20261126T134714Z/receipts/coder-sdk10-proof.json",
+    ".tmp/sdk-compat-261126/20261126T134714Z/receipts/prep-03-sdk11-current.json",
+    ".tmp/sdk-compat-261126/20261126T134714Z/receipts/coder-complete-handoff.json"
+  ],
+  "delta": "global.json major/allowPrerelease policy; Stack.tools stable 10.0.x>=401/11.0.x>=100; SDK/local-tail fixtures и ровно одна literal SDK-фраза в каждом из восьми local bodies; README SDK/runtime preflight.",
+  "outcome": "Статическая risk lane завершена без findings; продолжение только через helper-selected receipt в contracts/finalizer с самостоятельными оставшимися checks.",
+  "audit_observations": {
+    "canonical_target": {
+      "head": "0a7976ead7d25a86ad134154308b7c5ee7cb7f15",
+      "bundle_sha256": "f960e47476c37b0c920af27ab0be05b51238441ba4f33f5f4844cfd82036bba1",
+      "target_count": 12,
+      "scope_check": "rc0/scope_ok; planned final review остаётся completion debt",
+      "target_mode_changes": false
+    },
+    "sdk_filter": "re.fullmatch исключает prerelease/malformed/minor/future major; SDK refusal остаётся environment/sdk-version rc2, ошибки resolver сохраняют command-failed/timeout. Новые boundary tests проверяют phase/reason и фактический version call.",
+    "local_tail": "Прямое сравнение HEAD/current подтвердило ровно один literal old→new во всех восьми файлах и полное равенство остальных bytes. Shared-prefix/UTF-8/override/EOF guards сохраняются. Fixtures покрывают оба callers, committed-new baseline и 7new/1old refusal.",
+    "coder_rows": {
+      "sdk10": "10.0.404",
+      "sdk11": "11.0.100",
+      "runtime10": "10.0.15",
+      "os": "macOS 27.2.1/arm64",
+      "each_test_counts": {
+        "tests": 95,
+        "failures": 0,
+        "errors": 0
+      },
+      "make_wrapper_envelope_rcs": 0,
+      "sqlpackage": "170.5.96.0 /Version rc0",
+      "setup_attempts_completed": [
+        1,
+        2,
+        3
+      ],
+      "separate_roots_and_caches": true,
+      "offline_copy_config_absent": true
+    },
+    "resolver": {
+      "combined_inventory": [
+        "10.0.404",
+        "11.0.100"
+      ],
+      "combined_selected": "10.0.404",
+      "sdk11_selected": "11.0.100",
+      "no_compatible_fixture_rc": 155,
+      "negative_runtime_sdk": "11.0.100",
+      "negative_runtime10_present": false,
+      "negative_sqlpackage_rc": 150,
+      "negative_reason": "missing Microsoft.NETCore.App 10.0.11",
+      "positive_sqlpackage_first_rc": 0,
+      "negative_setup_attempts": 0
+    },
+    "retained_custody": {
+      "all_12_before_after_snapshot_files_match_current_bytes_modes": true,
+      "all_command_log_hashes_match_run_relative_refs": true,
+      "manifests_match_current": true,
+      "coder_proof_finished_before_prep03_started": true,
+      "prep03_current_cache_entries": 6,
+      "prep03_current_launcher_and_package_hashes_match": true,
+      "prep03_current_dacpac_hashes_match": true,
+      "coder_sql_attempts": 1,
+      "reviewer_sql_attempts": 0,
+      "reviewer_setup_required": false
+    },
+    "coder_xml": {
+      "path": "docs/code_reviews/assets/261126_1137_mssql_dotnet_sdk_10_11/sdk10.coder.junit.xml",
+      "sha256": "29499c0f69a403fdaef008c83e4028889041e2332b5f5eccc05a5b4bd0961d6f",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "unique_expected_identities": 9,
+      "real_products_canary": true,
+      "root_suite_counters_match": true,
+      "proof_and_prep03_preserved_sha_match": true,
+      "attempt_custody_and_mtime_match": true
+    },
+    "sealed_receipt_sha256": {
+      "coder-sdk10-proof.json": "871e7a33c471657efd18ce118ec8eb73ad0e430d2de37192647c2bbbcafac44c",
+      "prep-03-sdk11-current.json": "f2352e3caa413942a9f1eaa24433844bebee0a4e5254dc82f19ca19ebab42595",
+      "coder-complete-handoff.json": "db833e15cdd2dd94fd74f33fd263f36737b8f6b444fd397db3de4f191d6b61e1"
+    },
+    "sql_safety": "Diff scripts/sql.py ограничен SDK allowlist. Unchanged proof: JUNIT/path/Git→config→tools→old XML removal→build→fresh one-query guard→immediate Publish→RunAll→formatter→strict exact9 parser→atomic cleaned XML. BlockOnPossibleDataLoss, Northwind refusal, designated marker/sysadmin/config match и codes сохраняются.",
+    "external_sources": [
+      {
+        "url": "https://learn.microsoft.com/en-us/dotnet/core/tools/global-json",
+        "readback": "major пробует текущую feature/minor/major перед следующей; allowPrerelease=false исключает prerelease; SDK selection не доказывает runtime."
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/dotnet/core/install/macos",
+        "readback": "Текущая Microsoft matrix допускает .NET10/11 на macOS27; архитектура ARM64 соответствует retained Coder environment."
+      }
+    ],
+    "verification_boundary": "Ни один retained Coder факт не назван независимым Reviewer runtime proof; отдельный Reviewer XML ещё отсутствует."
+  },
+  "target_snapshot":
+{
+  "bundle_sha256": "f960e47476c37b0c920af27ab0be05b51238441ba4f33f5f4844cfd82036bba1",
+  "code_draft": "docs/code_drafts/261126_1137_mssql_dotnet_sdk_10_11__code_draft.md",
+  "files": [
+    {
+      "git_mode": "100644",
+      "path": "README.md",
+      "sha256": "6bfcda3293d563ad615ff010de8b36f45d60b72a0edc248585f49c41eef7526a",
+      "size_bytes": 14602
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/playbooks/post_merge_audit.md",
+      "sha256": "16cf10a77e57d236888eac00b3d37e9cb2ac4aa85d988c7fbf3cb05212cfe5b3",
+      "size_bytes": 44200
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/playbooks/review_merge_range.md",
+      "sha256": "4d0e7d844bb8da20c67270e2425c6734a25df5ea0fd11c0e82d157f761bea02b",
+      "size_bytes": 32242
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/playbooks/review_staged_or_commit.md",
+      "sha256": "335adaa014def65d7853574883a9480b0cc03f14b2f2496c79d569d855203f6d",
+      "size_bytes": 14131
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/architect_status_driven.md",
+      "sha256": "f11e4ec478d7e5f3f1e9907a5ee62ce15e0e36e2244c6f5b0018802314520c27",
+      "size_bytes": 86330
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/coder_migrations_gate.md",
+      "sha256": "36bcb8d6c848bd2418278b7283b2085f93e176b8c07fabbfcd429f9b5afef1f0",
+      "size_bytes": 9819
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/coder_status_driven.md",
+      "sha256": "d9e8df3372fa49c0cf449405600d58652e8f1159dd6fa8a52e4d3637f9c20ec9",
+      "size_bytes": 55983
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/planner_status_driven.md",
+      "sha256": "a19410fca52c501cec067f6e0d08fedcb418aeffd6ff95efd6e335a02eaa6e6e",
+      "size_bytes": 67067
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/tools/prompts/reviewer_status_driven.md",
+      "sha256": "9cb1603f889813ee63d5f88aa584f82497c212ebbbde6f6124a193ddf2284bcb",
+      "size_bytes": 109870
+    },
+    {
+      "git_mode": "100644",
+      "path": "global.json",
+      "sha256": "c17923ce9973dd20d007c15a444268e0a57e598dbf9fe1739a2e710ad404efe2",
+      "size_bytes": 87
+    },
+    {
+      "git_mode": "100644",
+      "path": "scripts/sql.py",
+      "sha256": "7f3f08e523c1014fa6ff85798f3e57f6f01a45aefb9affb655c9b3fc5d53ab6b",
+      "size_bytes": 34401
+    },
+    {
+      "git_mode": "100644",
+      "path": "scripts/test_sql.py",
+      "sha256": "4e3ae108a638357b5cca65ed912a5f2258f17101de2d834cae9fcc3573803b37",
+      "size_bytes": 92963
+    }
+  ],
+  "hash_basis": "sha256 over canonical JSON (ensure_ascii=False, sort_keys=True, separators=(',', ':')) of hash_basis_payload; targets come from the primary code_draft_meta.targets, are normalized to repo-relative POSIX paths, sorted by path, and each file authenticates its bytes plus normalized git_mode (100755 iff the owner-execute bit is set, otherwise 100644)",
+  "hash_basis_payload": {
+    "algorithm": "sha256",
+    "files": [
+      {
+        "git_mode": "100644",
+        "path": "README.md",
+        "sha256": "6bfcda3293d563ad615ff010de8b36f45d60b72a0edc248585f49c41eef7526a",
+        "size_bytes": 14602
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/playbooks/post_merge_audit.md",
+        "sha256": "16cf10a77e57d236888eac00b3d37e9cb2ac4aa85d988c7fbf3cb05212cfe5b3",
+        "size_bytes": 44200
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/playbooks/review_merge_range.md",
+        "sha256": "4d0e7d844bb8da20c67270e2425c6734a25df5ea0fd11c0e82d157f761bea02b",
+        "size_bytes": 32242
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/playbooks/review_staged_or_commit.md",
+        "sha256": "335adaa014def65d7853574883a9480b0cc03f14b2f2496c79d569d855203f6d",
+        "size_bytes": 14131
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/architect_status_driven.md",
+        "sha256": "f11e4ec478d7e5f3f1e9907a5ee62ce15e0e36e2244c6f5b0018802314520c27",
+        "size_bytes": 86330
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/coder_migrations_gate.md",
+        "sha256": "36bcb8d6c848bd2418278b7283b2085f93e176b8c07fabbfcd429f9b5afef1f0",
+        "size_bytes": 9819
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/coder_status_driven.md",
+        "sha256": "d9e8df3372fa49c0cf449405600d58652e8f1159dd6fa8a52e4d3637f9c20ec9",
+        "size_bytes": 55983
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/planner_status_driven.md",
+        "sha256": "a19410fca52c501cec067f6e0d08fedcb418aeffd6ff95efd6e335a02eaa6e6e",
+        "size_bytes": 67067
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/tools/prompts/reviewer_status_driven.md",
+        "sha256": "9cb1603f889813ee63d5f88aa584f82497c212ebbbde6f6124a193ddf2284bcb",
+        "size_bytes": 109870
+      },
+      {
+        "git_mode": "100644",
+        "path": "global.json",
+        "sha256": "c17923ce9973dd20d007c15a444268e0a57e598dbf9fe1739a2e710ad404efe2",
+        "size_bytes": 87
+      },
+      {
+        "git_mode": "100644",
+        "path": "scripts/sql.py",
+        "sha256": "7f3f08e523c1014fa6ff85798f3e57f6f01a45aefb9affb655c9b3fc5d53ab6b",
+        "size_bytes": 34401
+      },
+      {
+        "git_mode": "100644",
+        "path": "scripts/test_sql.py",
+        "sha256": "4e3ae108a638357b5cca65ed912a5f2258f17101de2d834cae9fcc3573803b37",
+        "size_bytes": 92963
+      }
+    ],
+    "schema_version": "review_target_snapshot.hash_basis.v2"
+  },
+  "plan": "docs/plans/261126_1137_mssql_dotnet_sdk_10_11.md",
+  "schema_version": "review_target_snapshot.v2",
+  "target": "BUNDLE=current bundle_sha256=f960e47476c37b0c920af27ab0be05b51238441ba4f33f5f4844cfd82036bba1",
+  "target_paths": [
+    "README.md",
+    "docs/playbooks/post_merge_audit.md",
+    "docs/playbooks/review_merge_range.md",
+    "docs/playbooks/review_staged_or_commit.md",
+    "docs/tools/prompts/architect_status_driven.md",
+    "docs/tools/prompts/coder_migrations_gate.md",
+    "docs/tools/prompts/coder_status_driven.md",
+    "docs/tools/prompts/planner_status_driven.md",
+    "docs/tools/prompts/reviewer_status_driven.md",
+    "global.json",
+    "scripts/sql.py",
+    "scripts/test_sql.py"
+  ],
+  "target_snapshot": {
+    "bundle_sha256": "f960e47476c37b0c920af27ab0be05b51238441ba4f33f5f4844cfd82036bba1",
+    "target": "BUNDLE=current"
+  }
+}
+}

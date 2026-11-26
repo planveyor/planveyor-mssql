@@ -188,6 +188,31 @@ class Fixture(unittest.TestCase):
 
 
 class ConfigTests(Fixture):
+    def test_supported_sdk_versions(self):
+        with patch('sql.platform.system', return_value='Darwin'), \
+                patch('sql.sys.version_info', (3, 12, 0)), \
+                patch('sql.shutil.which', return_value='/synthetic/dotnet'):
+            for version in ('10.0.401', '10.0.404', '11.0.100', '11.0.101', '11.0.100\n'):
+                with self.subTest(version=version):
+                    self.fake.overrides['version'] = (0, version, '')
+                    self.stack.tools()
+                    self.assertEqual(['dotnet', '--version'], self.fake.calls[-1][0])
+
+    def test_unsupported_sdk_versions(self):
+        versions = ('10.0.100', '10.0.400', '11.0.99', '9.0.401', '10.1.401',
+                    '11.1.100', '12.0.100', '10.0.401-preview.1', '11.0.100-rc.1',
+                    '11.0.100+metadata', '', 'garbage', '11.0', '11.0.100.1',
+                    '10.0.401\n11.0.100')
+        with patch('sql.platform.system', return_value='Darwin'), \
+                patch('sql.sys.version_info', (3, 12, 0)), \
+                patch('sql.shutil.which', return_value='/synthetic/dotnet'):
+            for version in versions:
+                with self.subTest(version=version):
+                    self.fake.overrides['version'] = (0, version, '')
+                    refusal = self.code(2, self.stack.tools)
+                    self.assertEqual(('environment', 'sdk-version'), (refusal.phase, refusal.reason))
+                    self.assertEqual(['dotnet', '--version'], self.fake.calls[-1][0])
+
     def test_missing_and_modes(self):
         path = self.root / '.env.local'
         path.unlink()
@@ -1011,6 +1036,8 @@ class LocalContractAssertions:
     STACK_H2 = '## Локальные правила стека'.encode()
     OVERRIDE_H2 = '## Разрешённое локальное переопределение процесса'.encode()
     DISABLED_OVERRIDE = '- Переопределение: N/A (why=no local override)'.encode()
+    OLD_SDK = b'SDK 10.0.401/latestFeature'
+    NEW_SDK = 'SDK — по README.md («Среда и зависимости»)'.encode()
 
     def heading_offset(self, data, heading, path):
         lines = data.splitlines(keepends=True)
@@ -1024,6 +1051,7 @@ class LocalContractAssertions:
             yield path, subprocess.check_output(['git', '-C', str(sql.ROOT), 'show', 'HEAD:' + path])
 
     def assert_local_contract(self, baseline, current, path):
+        self.assertIn(path, LOCAL_FILES)
         def sections(data):
             positions = [self.heading_offset(data, heading, path)
                          for heading in (self.STACK_H2, self.OVERRIDE_H2)]
@@ -1032,7 +1060,12 @@ class LocalContractAssertions:
 
         baseline_tail, _ = sections(baseline)
         current_tail, override = sections(current)
-        self.assertEqual(baseline_tail, current_tail, path)
+        if baseline_tail != current_tail:
+            self.assertEqual((1, 0), (baseline_tail.count(self.OLD_SDK),
+                                     baseline_tail.count(self.NEW_SDK)), path)
+            self.assertEqual((0, 1), (current_tail.count(self.OLD_SDK),
+                                     current_tail.count(self.NEW_SDK)), path)
+            self.assertEqual(baseline_tail.replace(self.OLD_SDK, self.NEW_SDK), current_tail, path)
         try:
             local = current_tail.decode('utf-8')
             override = override.decode('utf-8')
@@ -1044,6 +1077,16 @@ class LocalContractAssertions:
         override_rows = [line.strip() for line in effective.splitlines()
                          if re.match(r'^\s*-\s*Переопределение\s*:', line)]
         self.assertEqual([self.DISABLED_OVERRIDE.decode()], override_rows, path)
+
+    def assert_current_sdk_inventory(self, root):
+        self.assertEqual(8, len(LOCAL_FILES))
+        self.assertEqual(8, len(set(LOCAL_FILES)))
+        for path in LOCAL_FILES:
+            with self.subTest(path=path):
+                current = (root / path).read_bytes()
+                self.assert_local_contract(current, current, path)
+                tail = current[self.heading_offset(current, self.STACK_H2, path):]
+                self.assertEqual((0, 1), (tail.count(self.OLD_SDK), tail.count(self.NEW_SDK)), path)
 
 
 class PinnedSourceContract:
@@ -1127,6 +1170,7 @@ class PinnedSourceContract:
     def assert_all(self):
         self.assert_shared_bytes()
         self.assert_local_tails()
+        self.case.assert_current_sdk_inventory(self.root)
 
 
 class PinnedSourceContractTests(LocalContractAssertions, unittest.TestCase):
@@ -1160,11 +1204,15 @@ class PinnedSourceContractTests(LocalContractAssertions, unittest.TestCase):
     def test_local_tails_match_head_and_guards(self):
         self.contract.assert_local_tails()
 
+    def test_current_sdk_inventory(self):
+        self.assert_current_sdk_inventory(self.contract.root)
+
 
 class RepositoryContractTests(LocalContractAssertions, Fixture):
     def test_exact_pins_projects_lint_and_canary(self):
         root = sql.ROOT
-        self.assertEqual({'version': '10.0.401', 'rollForward': 'latestFeature'}, json.loads((root / 'global.json').read_text())['sdk'])
+        self.assertEqual({'version': '10.0.401', 'rollForward': 'major', 'allowPrerelease': False},
+                         json.loads((root / 'global.json').read_text())['sdk'])
         self.assertEqual('170.5.96', json.loads((root / '.config/dotnet-tools.json').read_text())['tools']['microsoft.sqlpackage']['version'])
         self.assertEqual('SQLFluff==3.4.2', (root / 'requirements-dev.txt').read_text().strip())
         for p in sql.PROJECTS:
@@ -1223,10 +1271,52 @@ class RepositoryContractTests(LocalContractAssertions, Fixture):
             with self.subTest(path=path):
                 self.assert_local_contract(baseline, (sql.ROOT / path).read_bytes(), path)
 
+    def test_current_sdk_inventory(self):
+        self.assert_current_sdk_inventory(sql.ROOT)
+
     def test_local_contract_unchanged(self):
         for path, baseline in self.local_contract_baselines():
             with self.subTest(path=path):
                 self.assert_local_contract(baseline, baseline, path)
+
+    def test_local_contract_sdk_bridge_and_equal_baselines(self):
+        for path, baseline in self.local_contract_baselines():
+            offset = self.heading_offset(baseline, self.STACK_H2, path)
+            old = baseline[:offset] + baseline[offset:].replace(self.NEW_SDK, self.OLD_SDK)
+            new = old[:offset] + old[offset:].replace(self.OLD_SDK, self.NEW_SDK)
+            for previous, current in ((old, old), (old, new), (new, new)):
+                with self.subTest(path=path, changed=previous != current):
+                    self.assert_local_contract(previous, current, path)
+
+    def test_local_contract_rejects_nonliteral_sdk_transitions(self):
+        for path, baseline in self.local_contract_baselines():
+            offset = self.heading_offset(baseline, self.STACK_H2, path)
+            old_tail = baseline[offset:].replace(self.NEW_SDK, self.OLD_SDK)
+            new_tail = old_tail.replace(self.OLD_SDK, self.NEW_SDK)
+            pairs = (
+                ('missing-old', old_tail.replace(self.OLD_SDK, b'Other SDK'), new_tail),
+                ('duplicate-old', old_tail.replace(self.OLD_SDK, self.OLD_SDK * 2), new_tail),
+                ('duplicate-new', old_tail, new_tail.replace(self.NEW_SDK, self.NEW_SDK * 2)),
+                ('mixed', old_tail, new_tail.replace(self.NEW_SDK, self.OLD_SDK + self.NEW_SDK)),
+                ('partial', old_tail, new_tail.replace(self.NEW_SDK, b'SDK - README.md')),
+                ('reverse', new_tail, old_tail),
+                ('extra-byte', old_tail, new_tail + b'X'),
+                ('changed-body', old_tail, new_tail.replace(b'\n', b'\nX', 1)),
+            )
+            for variant, previous, current in pairs:
+                with self.subTest(path=path, variant=variant), self.assertRaises(AssertionError):
+                    self.assert_local_contract(previous, current, path)
+            for variant, unsafe in (
+                    ('invalid-utf8', b'\xff'), ('forbidden', b'PLANVEYOR_RUNTIME_ROOT')):
+                unsafe_old = old_tail.replace(self.STACK_H2, self.STACK_H2 + b'\n' + unsafe, 1)
+                unsafe_new = unsafe_old.replace(self.OLD_SDK, self.NEW_SDK)
+                with self.subTest(path=path, variant=variant), self.assertRaises(AssertionError):
+                    self.assert_local_contract(unsafe_old, unsafe_new, path)
+            enabled_old = old_tail.replace(self.DISABLED_OVERRIDE, '- Переопределение: enabled'.encode())
+            with self.subTest(path=path, variant='bridged-override'), self.assertRaises(AssertionError):
+                self.assert_local_contract(enabled_old, enabled_old.replace(self.OLD_SDK, self.NEW_SDK), path)
+            with self.subTest(path=path, variant='unknown-path'), self.assertRaises(AssertionError):
+                self.assert_local_contract(old_tail, new_tail, 'docs/not-in-local-inventory.md')
 
     def test_local_contract_rejects_stack_and_override_body_mutations(self):
         for path, baseline in self.local_contract_baselines():
@@ -1343,7 +1433,8 @@ class PinnedSourceRegressionTests(LocalContractAssertions, unittest.TestCase):
         for root in (self.runtime, self.sibling):
             root.mkdir()
             self.fixture_git(root, 'init', '-q')
-        self.tail = (self.STACK_H2 + '\n\n- полный точный набор fixture checks.\n\n'.encode()
+        self.tail = (self.STACK_H2 + b'\n\n- ' + self.OLD_SDK
+                     + '; полный точный набор fixture checks.\n\n'.encode()
                      + self.OVERRIDE_H2 + b'\n\n' + self.DISABLED_OVERRIDE + b'\n')
         self.versions = {version: {path: ('Shared version ' + str(version) + ': ' + path + '\n\n').encode()
                                   + self.tail for path in LOCAL_FILES} for version in (1, 2)}
@@ -1360,7 +1451,14 @@ class PinnedSourceRegressionTests(LocalContractAssertions, unittest.TestCase):
         for name in ('sql.py', 'test_sql.py'):
             target = 'pinned_source_candidate.py' if name == 'test_sql.py' else name
             (scripts / target).write_bytes((sql.ROOT / 'scripts' / name).read_bytes())
-        (scripts / 'test_sql.py').write_text('from pinned_source_candidate import PinnedSourceContractTests\n')
+        (scripts / 'test_sql.py').write_text(
+            'import unittest\n'
+            'from pinned_source_candidate import PinnedSourceContractTests, RepositoryContractTests\n'
+            'def load_tests(loader, tests, pattern):\n'
+            '    suite = loader.loadTestsFromTestCase(PinnedSourceContractTests)\n'
+            '    suite.addTests(RepositoryContractTests(name) for name in (\n'
+            '        "test_shared_bytes_and_no_process_override", "test_current_sdk_inventory"))\n'
+            '    return suite\n')
         (self.sibling / 'Makefile').write_bytes((sql.ROOT / 'Makefile').read_bytes())
         self.clean_fixture()
 
@@ -1390,7 +1488,8 @@ class PinnedSourceRegressionTests(LocalContractAssertions, unittest.TestCase):
         # Restore only these owned disposable roots, never a real checkout/index.
         self.fixture_git(self.runtime, 'update-ref', 'HEAD', self.pin)
         self.write_rules(self.runtime / 'copier_template', self.versions[2])
-        self.write_rules(self.sibling, self.versions[2])
+        self.write_rules(self.sibling, {path: data.replace(self.OLD_SDK, self.NEW_SDK)
+                                       for path, data in self.versions[2].items()})
         self.write_pin(self.pin)
 
     def fixture_environment(self):
@@ -1412,7 +1511,7 @@ class PinnedSourceRegressionTests(LocalContractAssertions, unittest.TestCase):
         summaries = re.findall(r'^offline tests=(\d+) failures=(\d+) errors=(\d+)$', output, re.M)
         self.assertEqual(1, len(summaries), output)
         tests, failures, errors = map(int, summaries[0])
-        self.assertEqual(9, tests, output)
+        self.assertEqual(12, tests, output)
         failed = re.findall(r'^offline failed=(.+)$', output, re.M)
         if expected is None:
             self.assertEqual(0, result.returncode, output)
@@ -1423,7 +1522,8 @@ class PinnedSourceRegressionTests(LocalContractAssertions, unittest.TestCase):
             self.assertNotEqual(0, result.returncode, output)
             self.assertGreater(failures + errors, 0, output)
             self.assertIn('sql phase=test category=test rc=1', output)
-            full_id = 'pinned_source_candidate.PinnedSourceContractTests.' + expected
+            method = expected if '.' in expected else 'PinnedSourceContractTests.' + expected
+            full_id = 'pinned_source_candidate.' + method
             self.assertTrue(any(value == full_id or value.startswith(full_id + ' (') for value in failed),
                             'missing designated full failed ID: ' + full_id + '\n' + output)
         if deadline is not None:
@@ -1445,10 +1545,29 @@ class PinnedSourceRegressionTests(LocalContractAssertions, unittest.TestCase):
                 source_offset = self.heading_offset(source, self.STACK_H2, path)
                 self.assertNotEqual(old[:old_offset], current[:current_offset])
                 self.assertEqual(source[:source_offset], current[:current_offset])
-                self.assertEqual(old[old_offset:], current[current_offset:])
+                self.assertEqual(old[old_offset:].replace(self.OLD_SDK, self.NEW_SDK), current[current_offset:])
         self.fixture_contract().assert_all()
         self.fixture_make()
         self.assertEqual(self.sibling_head.encode() + b'\n', self.fixture_git(self.sibling, 'rev-parse', 'HEAD'))
+
+    def test_sdk_transition_both_callers_and_committed_new_baseline(self):
+        self.fixture_make()
+        self.fixture_contract().assert_all()
+        committed = self.fixture_commit(self.sibling, LOCAL_FILES)
+        self.assertNotEqual(self.sibling_head, committed)
+        self.fixture_contract().assert_all()
+        self.fixture_make()
+
+    def test_seven_new_one_old_refuses_current_inventory(self):
+        path = self.sibling / LOCAL_FILES[-1]
+        current = path.read_bytes()
+        old = current.replace(self.NEW_SDK, self.OLD_SDK)
+        path.write_bytes(old)
+        baseline = self.fixture_git(self.sibling, 'show', 'HEAD:' + LOCAL_FILES[-1])
+        self.assert_local_contract(baseline, old, LOCAL_FILES[-1])
+        for expected in ('PinnedSourceContractTests.test_current_sdk_inventory',
+                         'RepositoryContractTests.test_current_sdk_inventory'):
+            self.fixture_make(expected)
 
     def test_pinned_blob_ignores_runtime_worktree_mutation(self):
         for path in LOCAL_FILES:
@@ -1468,13 +1587,13 @@ class PinnedSourceRegressionTests(LocalContractAssertions, unittest.TestCase):
             for variant, prefix in (('deleted', b''), ('replaced', b'Tampered shared prefix\n')):
                 with self.subTest(path=path, variant=variant):
                     self.clean_fixture()
-                    (self.sibling / path).write_bytes(prefix + self.tail)
+                    (self.sibling / path).write_bytes(prefix + self.tail.replace(self.OLD_SDK, self.NEW_SDK))
                     self.fixture_make('test_pinned_shared_bytes_match', deadline=deadline)
                     cases += 1
             for variant in ('body', 'override', 'EOF'):
                 with self.subTest(path=path, variant=variant):
                     self.clean_fixture()
-                    data = self.versions[2][path]
+                    data = (self.sibling / path).read_bytes()
                     if variant == 'body':
                         data = data.replace(self.STACK_H2, self.STACK_H2 + b'\n- Changed local body', 1)
                     elif variant == 'override':

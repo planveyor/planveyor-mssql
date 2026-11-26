@@ -10,11 +10,26 @@ production вне объёма. Рабочий процесс Planveyor опис
 
 ## Среда и зависимости
 
-Нужны подготовленные macOS, Python 3.12 первым в PATH, .NET SDK и go-sqlcmd.
-`global.json` задаёт SDK 10.0.401 и latestFeature. Проекты закрепляют
+Нужны подготовленные macOS ARM64, Python 3.12 первым в PATH, .NET SDK и go-sqlcmd.
+`global.json` задаёт минимум SDK 10.0.401, `rollForward: major` и
+`allowPrerelease: false`. Поддерживаются только стабильные SDK 10.0.x от
+10.0.401 и 11.0.x от 11.0.100. Resolver предпочитает подходящий SDK 10 и
+переходит на 11 при его отсутствии; выбранные другой minor/major, prerelease
+или версия ниже порога дают отказ обвязки 2 без поиска другого launcher.
+Owner/администратор заранее готовит постоянную ARM64-установку .NET на
+[поддерживаемой macOS](https://learn.microsoft.com/en-us/dotnet/core/install/macos).
+Роли используют объявленный launcher, не устанавливают SDK/runtime и не меняют
+HOME, shell config или постоянный PATH. Проекты закрепляют
 Microsoft.Build.Sql 2.3.0 и Sql150DatabaseSchemaProvider; тестовый проект
 использует tSQLt.Dacpacs 1.0.8083.3529, DacpacName tSQLt.2019 и ProjectReference.
 SqlPackage 170.5.96 — local dotnet tool в `.config/dotnet-tools.json`.
+В той же выбранной установке ему нужен `Microsoft.NETCore.App` 10.0.x от
+10.0.11, в том числе при SDK 11. До SQL в одном command-scoped окружении
+проверяются фактические `dotnet --version`, `dotnet --list-runtimes` и
+`dotnet tool run sqlpackage -- /Version`. Отсутствующий runtime или nonzero
+`/Version` останавливает этап; `--allow-roll-forward`, изменение runtimeconfig
+и автоматическая смена установки не допускаются. Диагностика и synthetic tests
+не заменяют две текущие офлайн-строки и отдельный guarded SQL proof по плану.
 SQLFluff 3.4.2 из `requirements-dev.txt`: tsql, raw, длина 120 в `.sqlfluff`.
 Обновления пакетов автоматически не выполняются.
 

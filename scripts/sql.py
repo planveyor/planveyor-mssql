@@ -419,8 +419,8 @@ class Stack:
             if not shutil.which('dotnet', path=self.env.get('PATH')):
                 refuse(2, 'environment', 'dotnet-missing')
             version = self.run(['dotnet', '--version'], timeout=30, code=2, phase='environment').stdout.strip()
-            match = re.fullmatch(r'10\.0\.([0-9]+)', version)
-            if not match or int(match[1]) < 401:
+            match = re.fullmatch(r'(10|11)\.0\.([0-9]+)', version)
+            if not match or int(match[2]) < {'10': 401, '11': 100}[match[1]]:
                 refuse(2, 'environment', 'sdk-version')
         if live:
             if not shutil.which('sqlcmd', path=self.env.get('PATH')):
