@@ -50,12 +50,14 @@
 (Keep this aligned with `PLAN_PATH` provenance. If the draft is created in the same session as the plan, reuse the same facts via `"$PLANVEYOR_RUNTIME_ROOT/bin/planveyor" --project "$PWD" planveyor_plan_provenance_context --section code-draft --session-key <role>` instead of freehand copy/paste.)
 - Source plan provenance: `reuse PLAN_PATH carrier unless this draft is created/imported/backfilled separately`
 - Relation: `created-here | continued-here | imported-from-packet | manual-backfill`
-- Thread ID: `UUID/handle` или `N/A (why=...)`
-- Parent thread ID: `UUID/handle` или `N/A (why=...)`
-- Session SID: `UUID/handle` или `N/A (why=...)`
+- Thread ID: `<REDACTED>` или `N/A (why=...)`
+- Parent thread ID: `<REDACTED>` или `N/A (why=...)`
+- Session SID: `<REDACTED>` или `N/A (why=...)`
 - Launch surface: `codex-desktop | codex-cli | manager-collab | manager-custom-pipeline | unknown (why=...)`
 - Captured from: `env | wrapper-session-file | session-stats | packet-import | manual-owner`
 - Captured at: `YYYY-MM-DDTHH:MM:SSZ`
+
+> Privacy: любое найденное identity value скрывается как `<REDACTED>` по `"$PLANVEYOR_RUNTIME_ROOT/SECURITY.md"`; прежние причины отсутствия `N/A (why=...)` сохраняются. Private collection и JSON/KV не меняются; raw identity не переносится в tracked carrier, в том числе после preserve/copy/fallback.
 
 > `code_draft_meta.targets` = authoritative implementation/doc file set. Если draft используется как input для post-review selective staging, к `Ready for Review` targets должны быть reconciled до exact final set (не seed sketch). Если seed держал abstract package/dir umbrella, а в diff materialize-ились конкретные child files, restamp targets на эти literal file paths до closeout; abstract parent dir не считается commit-ready substitute. Если same-contract reroute сужает already-closed baseline до leftover cleanup, accepted baseline carriers restamp-ятся в notes/receipt как `historical anchor only`, а live `code_draft_meta.targets` сужается до literal leftover carrier вместо повторного открытия уже принятых файлов. `code_draft_meta.deleted_paths` = optional explicit deletion carrier for files intentionally removed by this bundle; every entry must be tracked in `HEAD`, deleted paths are stageable bundle members, and they do not weaken missing/stale checks for ordinary live `targets` or existing untracked files. `PLAN_PATH`, сам code draft, review artifacts и explicit review asset refs добавляются в финальный bundle отдельно.
 

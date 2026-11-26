@@ -100,12 +100,14 @@
 ## Plan provenance / session context
 (Required for current plan.v2 plans. Historical touch-on-edit/backfill still materializes this carrier instead of skipping it. Use repo-backed helper output; if a fact is missing, keep the field and write `N/A (why=...)`.)
 - Relation: `created-here | continued-here | imported-from-packet | manual-backfill`
-- Thread ID: `UUID/handle` или `N/A (why=...)`
-- Parent thread ID: `UUID/handle` или `N/A (why=...)`
-- Session SID: `UUID/handle` или `N/A (why=...)`
+- Thread ID: `<REDACTED>` или `N/A (why=...)`
+- Parent thread ID: `<REDACTED>` или `N/A (why=...)`
+- Session SID: `<REDACTED>` или `N/A (why=...)`
 - Launch surface: `codex-desktop | codex-cli | manager-collab | manager-custom-pipeline | unknown (why=...)`
 - Captured from: `env | wrapper-session-file | session-stats | packet-import | manual-owner`
 - Captured at: `YYYY-MM-DDTHH:MM:SSZ`
+
+> Privacy: любое найденное identity value скрывается как `<REDACTED>` по `"$PLANVEYOR_RUNTIME_ROOT/SECURITY.md"`; прежние причины отсутствия `N/A (why=...)` сохраняются. Private collection и JSON/KV не меняются; raw identity не переносится в tracked carrier, в том числе после preserve/copy/fallback.
 
 > Этот carrier отвечает только на происхождение текущего plan context. Он не заменяет `plan_meta`, `## Verification rerun / exec handoff`, `.planveyor.session.*` attach-pointer и rollout packet. Canonical helper surface = `"$PLANVEYOR_RUNTIME_ROOT/bin/planveyor" --project "$PWD" planveyor_plan_provenance_stamp <PLAN_PATH> --session-key <role>`. Existing section сохраняем и обновляем только по truthful trigger: новый thread/session continuation, packet import или explicit manual backfill.
 

@@ -4,5 +4,5 @@
   "authority_mode": "target-local",
   "contract_root": ".",
   "required_runtime_api": {"minimum": 5, "maximum": 5},
-  "source_commit": "3f5b2c1a903e92eea9551919a18e923eb4045a2e"
+  "source_commit": "bbf11a7a2b7b8e473951c4052f749b251fc42578"
 }

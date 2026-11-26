@@ -836,12 +836,14 @@ needs a later documented slice with fixture/noise evidence.
 
 Literal field set:
 - `Relation:` `created-here | continued-here | imported-from-packet | manual-backfill`
-- `Thread ID:` current thread handle или `N/A (why=...)`
-- `Parent thread ID:` optional upstream thread handle или `N/A (why=...)`
-- `Session SID:` Codex session/audit pointer или `N/A (why=...)`
+- `Thread ID:` `<REDACTED>` для найденного private thread handle или `N/A (why=...)`
+- `Parent thread ID:` `<REDACTED>` для найденного private upstream handle или `N/A (why=...)`
+- `Session SID:` `<REDACTED>` для найденного private session/audit pointer или `N/A (why=...)`
 - `Launch surface:` `codex-desktop | codex-cli | manager-collab | manager-custom-pipeline | unknown (why=...)`
 - `Captured from:` `env | wrapper-session-file | session-stats | packet-import | manual-owner`
 - `Captured at:` timestamp
+
+Tracked Markdown скрывает любое найденное identity value, включая opaque handle, согласно `"$PLANVEYOR_RUNTIME_ROOT/SECURITY.md"`. Отсутствующее значение сохраняет прежний `N/A (why=...)`; private collection, JSON/KV, локальные указатели и caller passthrough сохраняют свои значения. Это правило действует также после preserve/copy/fallback при повторном scaffold.
 
 Canonical collection order:
 1. live env (`CODEX_THREAD_ID`, optional `CODEX_PARENT_THREAD_ID`); facade `"$PLANVEYOR_RUNTIME_ROOT/bin/planveyor"` запускает команду в чистом окружении и передаёт в неё из live env только непустой `CODEX_THREAD_ID`, поэтому через facade `Parent thread ID` берётся из следующих источников;
@@ -857,7 +859,7 @@ Canonical helper surfaces:
 
 Rules:
 - Architect materialize-ит carrier при создании нового plan; остальные роли сохраняют его и обновляют только по truthful trigger.
-- Разрешённые rewrites: `created-here -> continued-here` на later session того же plan, packet-import restamp, explicit `manual-backfill`, refresh `captured_*` и repo-backed ids через helper.
+- Разрешённые rewrites: `created-here -> continued-here` на later session того же plan, packet-import restamp, explicit `manual-backfill`, refresh `captured_*` через helper; identity в tracked carrier остаётся `<REDACTED>`, private values не копируются из JSON/KV.
 - Недостающие значения не угадываем: пишем `N/A (why=...)` в конкретном поле, а не пропускаем раздел целиком.
 - `Context source:` в `## Verification rerun / exec handoff` остаётся bounded human execution context, а provenance block остаётся audit/origin carrier.
 - `docs/code_drafts/_template.md` зеркалит этот carrier как `## Provenance / session context`; `docs/rollout_packets/_template.md` несёт только bounded `## Source provenance` subset, а не весь mutable plan block.

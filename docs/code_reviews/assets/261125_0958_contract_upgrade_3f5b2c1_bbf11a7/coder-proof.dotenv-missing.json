@@ -1,0 +1,22 @@
+{
+  "HEAD_after": "6ee53427ad65a972071def100a0aca6227b0dafb",
+  "HEAD_before": "6ee53427ad65a972071def100a0aca6227b0dafb",
+  "bundle_sha256_after": "68f8492cdf56702042b24fc98395d3ef15fb1f19bb73f6b172573d184c4eefc8",
+  "bundle_sha256_before": "68f8492cdf56702042b24fc98395d3ef15fb1f19bb73f6b172573d184c4eefc8",
+  "command": "make db-proof JUNIT=docs/code_reviews/assets/261125_0958_contract_upgrade_3f5b2c1_bbf11a7/coder.junit.xml",
+  "counts": null,
+  "junit_path": "docs/code_reviews/assets/261125_0958_contract_upgrade_3f5b2c1_bbf11a7/coder.junit.xml",
+  "junit_sha256": null,
+  "make_rc": 2,
+  "role": "Coder",
+  "target_snapshot_after": {
+    "bundle_sha256": "68f8492cdf56702042b24fc98395d3ef15fb1f19bb73f6b172573d184c4eefc8",
+    "target": "BUNDLE=current"
+  },
+  "target_snapshot_before": {
+    "bundle_sha256": "68f8492cdf56702042b24fc98395d3ef15fb1f19bb73f6b172573d184c4eefc8",
+    "target": "BUNDLE=current"
+  },
+  "testcases": [],
+  "wrapper_rc": 2
+}

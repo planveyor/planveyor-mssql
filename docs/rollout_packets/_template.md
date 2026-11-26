@@ -52,12 +52,14 @@ Source-side acknowledgement contract (both commands run from the physical Planve
 ## Source provenance
 (Bounded subset only. Source packet records where the shared/source bundle was created; target-local imported plan keeps its own full `## Plan provenance / session context` after import.)
 - Relation: `created-here | continued-here | manual-backfill`
-- Thread ID: `UUID/handle` или `N/A (why=...)`
-- Session SID: `UUID/handle` или `N/A (why=...)`
+- Thread ID: `<REDACTED>` или `N/A (why=...)`
+- Session SID: `<REDACTED>` или `N/A (why=...)`
 - Launch surface: `codex-desktop | codex-cli | manager-collab | manager-custom-pipeline | unknown (why=...)`
 - Captured from: `env | wrapper-session-file | session-stats | manual-owner`
 - Captured at: `YYYY-MM-DDTHH:MM:SSZ`
 - Target import expectation: `target repo generates one direct adoption plan carrier, then records the packet decision through the selected-consumer Planveyor facade and planveyor_rollout_packet_outcome_set with exact packet id/path and one canonical outcome`
+
+> Privacy: любое найденное identity value скрывается как `<REDACTED>` по `"$PLANVEYOR_RUNTIME_ROOT/SECURITY.md"`; прежние причины отсутствия `N/A (why=...)` сохраняются. Private collection и JSON/KV не меняются; raw identity не переносится в tracked carrier, в том числе после preserve/copy/fallback.
 
 ## Why target repo action exists
 - Shared/source change:

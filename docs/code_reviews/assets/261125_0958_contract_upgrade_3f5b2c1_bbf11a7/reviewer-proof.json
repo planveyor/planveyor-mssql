@@ -1,0 +1,37 @@
+{
+  "HEAD_after": "6ee53427ad65a972071def100a0aca6227b0dafb",
+  "HEAD_before": "6ee53427ad65a972071def100a0aca6227b0dafb",
+  "bundle_sha256_after": "68f8492cdf56702042b24fc98395d3ef15fb1f19bb73f6b172573d184c4eefc8",
+  "bundle_sha256_before": "68f8492cdf56702042b24fc98395d3ef15fb1f19bb73f6b172573d184c4eefc8",
+  "command": "make db-proof JUNIT=docs/code_reviews/assets/261125_0958_contract_upgrade_3f5b2c1_bbf11a7/reviewer.junit.xml",
+  "counts": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 9
+  },
+  "junit_path": "docs/code_reviews/assets/261125_0958_contract_upgrade_3f5b2c1_bbf11a7/reviewer.junit.xml",
+  "junit_sha256": "29499c0f69a403fdaef008c83e4028889041e2332b5f5eccc05a5b4bd0961d6f",
+  "make_rc": 0,
+  "role": "Reviewer",
+  "target_snapshot_after": {
+    "bundle_sha256": "68f8492cdf56702042b24fc98395d3ef15fb1f19bb73f6b172573d184c4eefc8",
+    "target": "BUNDLE=current"
+  },
+  "target_snapshot_before": {
+    "bundle_sha256": "68f8492cdf56702042b24fc98395d3ef15fb1f19bb73f6b172573d184c4eefc8",
+    "target": "BUNDLE=current"
+  },
+  "testcases": [
+    "GetReorderCandidatesTests.test T1 empty Products returns empty result",
+    "GetReorderCandidatesTests.test T2 active shortage is returned",
+    "GetReorderCandidatesTests.test T3 zero and negative shortage excluded",
+    "GetReorderCandidatesTests.test T4 on order units cover shortage",
+    "GetReorderCandidatesTests.test T5 discontinued products excluded",
+    "GetReorderCandidatesTests.test T6 numeric nulls treated as zero",
+    "GetReorderCandidatesTests.test T7 smallint arithmetic does not overflow",
+    "GetReorderCandidatesTests.test T8 result metadata and ProductID order",
+    "StackAdaptationTests.test Products table exists"
+  ],
+  "wrapper_rc": 0
+}

@@ -1,0 +1,220 @@
+{
+  "run_id": "reviewer_code_risk_20261125T234904Z",
+  "lane_id": "reviewer_code_risk",
+  "runner_id": "codex-native-collab",
+  "session_key": "reviewer_code_risk_sol_xhigh_v2",
+  "sid": "N/A (why=отдельный wrapper SID не передан native collab lane)",
+  "profile": "unknown (why=REVIEWER_PROFILE не передан; native reviewer_code_risk)",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "ultra",
+  "prompt_file": "docs/tools/prompts/reviewer_status_driven.md",
+  "target_ref": "BUNDLE=current bundle_sha256=68f8492cdf56702042b24fc98395d3ef15fb1f19bb73f6b172573d184c4eefc8",
+  "coverage_domains": [
+    "correctness",
+    "tests quality",
+    "security/privacy",
+    "subprocess/timeouts",
+    "races/locks/atomicity",
+    "data/migrations",
+    "performance",
+    "observability",
+    "integrations",
+    "supply chain",
+    "failure semantics"
+  ],
+  "findings": [],
+  "lane_status": "no_findings",
+  "no_findings_reason": "В exact diff шести carriers нет обнаруженных новых risk findings: меняются только source pin и masking provenance; четыре docs совпадают с pinned blobs, восемь local tails сохранены. Coder current XML и history подтверждены отдельным readback, обязательный собственный Reviewer proof остаётся будущим gate.",
+  "limits": [
+    "Это только risk lane: contracts synthesis, финальный review artifact и top-level status не материализованы.",
+    "Собственные Reviewer contract/AC3/offline/db-state/guarded db-proof и reviewer.junit.xml здесь не выполнялись и не создавались; Coder JUnit не заменяет независимый Reviewer proof. AC4/AC5/AC7 остаются открытыми.",
+    "Конфигурация/credentials не открывались. Live SQL, setup/Extract, SDK/control/preflight и engine-only suites не запускались; historical CENSOR и setup receipts не выданы за live Reviewer acceptance."
+  ],
+  "source_refs": [
+    ".copier-answers.yml",
+    "docs/_meta/planveyor_contract_authority.v1.json",
+    "docs/code_drafts/_template.md",
+    "docs/plans/README.md",
+    "docs/plans/_template.md",
+    "docs/rollout_packets/_template.md",
+    "docs/plans/261125_0958_contract_upgrade_3f5b2c1_bbf11a7.md",
+    "docs/code_drafts/261125_0958_contract_upgrade_3f5b2c1_bbf11a7__code_draft.md",
+    "docs/playbooks/review_staged_or_commit.md",
+    "scripts/sql.py",
+    "scripts/test_sql.py",
+    "sql/tests/GetReorderCandidatesTests/",
+    "sql/tests/StackAdaptationTests/test_Products_table_exists.sql",
+    "docs/code_reviews/assets/261125_0958_contract_upgrade_3f5b2c1_bbf11a7/coder-proof.json",
+    "docs/code_reviews/assets/261125_0958_contract_upgrade_3f5b2c1_bbf11a7/coder.junit.xml",
+    "docs/code_reviews/assets/261125_0958_contract_upgrade_3f5b2c1_bbf11a7/coder-proof.dotenv-missing.json"
+  ],
+  "delta": "Source _commit/full source_commit обновлены до bbf11a7; tracked Markdown identities заменены на REDACTED с сохранением N/A и private JSON/KV ABI. SQL/product/helper implementation и source runtime не изменены.",
+  "outcome": "no_findings только в risk domains по текущим шести target bytes; обязательные следующие Reviewer gates не приняты за выполненные.",
+  "current": true,
+  "written_at": "2026-11-25T23:49:04Z",
+  "checks": [
+    {
+      "command": "../runtime-bbf11a7/bin/planveyor --project \"$PWD\" planveyor_plan_bundle --scope-check docs/plans/261125_0958_contract_upgrade_3f5b2c1_bbf11a7.md",
+      "exit_code": 0,
+      "result": "scope_ok=true; selected=not_selected на входе; единственный review PLANNED; inventory не является completion"
+    },
+    {
+      "command": "../runtime-bbf11a7/bin/planveyor --project \"$PWD\" planveyor_review_target_snapshot docs/plans/261125_0958_contract_upgrade_3f5b2c1_bbf11a7.md --current-bundle",
+      "exit_code": 0,
+      "result": "canonical review_target_snapshot.v2; exact six targets; unchanged bundle"
+    },
+    {
+      "command": "python3 -B .tmp/contract-provenance-proof/verify_contract.py",
+      "exit_code": 0,
+      "result": "four pinned Copier blobs byte-identical; eight local tails unchanged; source pin/authority/API unchanged"
+    },
+    {
+      "command": "../runtime-bbf11a7/bin/planveyor --project \"$PWD\" planveyor_plan_lint docs/plans/261125_0958_contract_upgrade_3f5b2c1_bbf11a7.md",
+      "exit_code": 0,
+      "result": "ordinary plan lint до записи lane receipt"
+    },
+    {
+      "command": "git diff --check -- .copier-answers.yml docs/_meta/planveyor_contract_authority.v1.json docs/code_drafts/_template.md docs/plans/README.md docs/plans/_template.md docs/rollout_packets/_template.md docs/plans/261125_0958_contract_upgrade_3f5b2c1_bbf11a7.md docs/code_drafts/261125_0958_contract_upgrade_3f5b2c1_bbf11a7__code_draft.md",
+      "exit_code": 0,
+      "result": "exact-path whitespace gate до записи lane receipt"
+    }
+  ],
+  "evidence_readback": {
+    "checked_hashes": 19,
+    "coder_junit_sha256": "29499c0f69a403fdaef008c83e4028889041e2332b5f5eccc05a5b4bd0961d6f",
+    "coder_proof_sha256": "77c0356aa3622af4e28defdce4d924b9ae988d8a265fb2016396c275b3f77dd0",
+    "historical_blocked_sha256": "d3141661f7fb3a8e4a7f59b39e6c67b69b33c832de8b7fc61e0b52953fb1840e",
+    "head_before_after_current": "6ee53427ad65a972071def100a0aca6227b0dafb",
+    "bundle_before_after_current": "68f8492cdf56702042b24fc98395d3ef15fb1f19bb73f6b172573d184c4eefc8",
+    "coder_make_rc": 0,
+    "coder_wrapper_rc": 0,
+    "coder_junit_counts": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "coder_junit_exact_source_identities": 9,
+    "coder_junit_suite_count": 2,
+    "real_canary": "OBJECT_ID(N'dbo.Products', N'U'); без FakeTable/NewTestClass",
+    "historical_blocked": {
+      "make_rc": 2,
+      "wrapper_rc": 2,
+      "counts": null,
+      "junit_sha256": null,
+      "testcases": []
+    },
+    "q5": "hash-pinned terminal controls/SDK green; без повторного исполнения",
+    "q6": "original aborted pair byte-valid; отдельная linked actual setup 0/0/cache6/6 сохранена",
+    "unchanged_baselines": [
+      "scripts/sql.py",
+      "scripts/test_sql.py",
+      "Makefile",
+      "selected runtime bin/planveyor",
+      "selected runtime scripts/codex_session_context.py",
+      "selected runtime scripts/planveyor.zsh"
+    ],
+    "ambient_git_overrides_present": false
+  },
+  "target_snapshot":
+{
+  "bundle_sha256": "68f8492cdf56702042b24fc98395d3ef15fb1f19bb73f6b172573d184c4eefc8",
+  "code_draft": "docs/code_drafts/261125_0958_contract_upgrade_3f5b2c1_bbf11a7__code_draft.md",
+  "files": [
+    {
+      "git_mode": "100644",
+      "path": ".copier-answers.yml",
+      "sha256": "0ecf1ba1104e91ddd8b6e6b0ae4a2aafa1e1739a3345bba6d73f0714804fe159",
+      "size_bytes": 103
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/_meta/planveyor_contract_authority.v1.json",
+      "sha256": "17ec89df95842b959683169007b2e482279cc35be312641cda0c17a8dfdcda51",
+      "size_bytes": 243
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/code_drafts/_template.md",
+      "sha256": "ba1e18c2f684c147def4492060c866b63b410965b75c1edbe4c702a1defead41",
+      "size_bytes": 22237
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/plans/README.md",
+      "sha256": "dd7b1c5bb860f84f9608cc416361a519b456a584254c740b15f87341fcdd35a6",
+      "size_bytes": 225972
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/plans/_template.md",
+      "sha256": "4a7b84ba7f857ca4c0318faa864bf7585fe11a08601c38560ad5627c1660e6f4",
+      "size_bytes": 63143
+    },
+    {
+      "git_mode": "100644",
+      "path": "docs/rollout_packets/_template.md",
+      "sha256": "59d34af9f0307b4ef5f35bbc4f689ae0099473be613baae5679eb272f9822a59",
+      "size_bytes": 9077
+    }
+  ],
+  "hash_basis": "sha256 over canonical JSON (ensure_ascii=False, sort_keys=True, separators=(',', ':')) of hash_basis_payload; targets come from the primary code_draft_meta.targets, are normalized to repo-relative POSIX paths, sorted by path, and each file authenticates its bytes plus normalized git_mode (100755 iff the owner-execute bit is set, otherwise 100644)",
+  "hash_basis_payload": {
+    "algorithm": "sha256",
+    "files": [
+      {
+        "git_mode": "100644",
+        "path": ".copier-answers.yml",
+        "sha256": "0ecf1ba1104e91ddd8b6e6b0ae4a2aafa1e1739a3345bba6d73f0714804fe159",
+        "size_bytes": 103
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/_meta/planveyor_contract_authority.v1.json",
+        "sha256": "17ec89df95842b959683169007b2e482279cc35be312641cda0c17a8dfdcda51",
+        "size_bytes": 243
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/code_drafts/_template.md",
+        "sha256": "ba1e18c2f684c147def4492060c866b63b410965b75c1edbe4c702a1defead41",
+        "size_bytes": 22237
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/plans/README.md",
+        "sha256": "dd7b1c5bb860f84f9608cc416361a519b456a584254c740b15f87341fcdd35a6",
+        "size_bytes": 225972
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/plans/_template.md",
+        "sha256": "4a7b84ba7f857ca4c0318faa864bf7585fe11a08601c38560ad5627c1660e6f4",
+        "size_bytes": 63143
+      },
+      {
+        "git_mode": "100644",
+        "path": "docs/rollout_packets/_template.md",
+        "sha256": "59d34af9f0307b4ef5f35bbc4f689ae0099473be613baae5679eb272f9822a59",
+        "size_bytes": 9077
+      }
+    ],
+    "schema_version": "review_target_snapshot.hash_basis.v2"
+  },
+  "plan": "docs/plans/261125_0958_contract_upgrade_3f5b2c1_bbf11a7.md",
+  "schema_version": "review_target_snapshot.v2",
+  "target": "BUNDLE=current bundle_sha256=68f8492cdf56702042b24fc98395d3ef15fb1f19bb73f6b172573d184c4eefc8",
+  "target_paths": [
+    ".copier-answers.yml",
+    "docs/_meta/planveyor_contract_authority.v1.json",
+    "docs/code_drafts/_template.md",
+    "docs/plans/README.md",
+    "docs/plans/_template.md",
+    "docs/rollout_packets/_template.md"
+  ],
+  "target_snapshot": {
+    "bundle_sha256": "68f8492cdf56702042b24fc98395d3ef15fb1f19bb73f6b172573d184c4eefc8",
+    "target": "BUNDLE=current"
+  }
+}
+}
